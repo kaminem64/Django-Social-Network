@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tag }} Solutions{% endblock %}
+
+{% block content %}
+
+<div id="tag_solution_list">
+<li class="tag_nob">Tag: <a class="tag" href="/tags/{{ tag }}/">{{ tag }}</a></li>
+
+<div>Total Solutions available: {{ table_list_len }}</div>
+<ol>
+{% for solution in table_list %}
+<li>
+<a href="/solutions/view/{{ solution.id }}/">{{ solution.title|safe }}</a>
+</li>
+{% endfor %}
+</ol>
+</div>
+
+{% if page_bar_mid|length != 1 %}
+<p>
+{% if previous_page %}
+<a href="/tags/{{ tag }}/?page_no={{previous_page}}&per_page={{per_page}}">Previous</a>
+{% endif %}
+
+{% if page_bar_left %}
+<a href="/tags/{{ tag }}/?page_no={{page_bar_left}}&per_page={{per_page}}">{{page_bar_left}}</a> ... 
+{% endif %}
+{% for page in page_bar_mid %}
+{% if page == current_page %}
+<b>{{page}}</b>
+{% else %}
+<a href="/tags/{{ tag }}/?page_no={{page}}&per_page={{per_page}}">{{page}}</a>
+{% endif %}
+{% endfor %}
+{% if page_bar_right %}
+ ... <a href="/tags/{{ tag }}/?page_no={{page_bar_right}}&per_page={{per_page}}">{{page_bar_right}}</a>
+{% endif %}
+{% if next_page %}
+<a href="/tags/{{ tag }}/?page_no={{next_page}}&per_page={{per_page}}">Next</a>
+{% endif %}
+
+</p>
+{% endif %}
+{% if total_pages|length > 1 or table_list_len >= 20%}
+<div>Items per page: <a href="/tags/{{ tag }}/?page_no=1&per_page=20">20</a> <a href="/tags/{{ tag }}/?page_no=1&per_page=40">40</a>
+<a href="/tags/{{ tag }}/?page_no=1&per_page=100">100</a>
+</div>
+{% endif %}
+
+{% endblock %}

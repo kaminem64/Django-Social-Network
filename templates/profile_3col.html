@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+
+{% block title %}{{graphs_user_info.first_name}} {{graphs_user_info.last_name}}'s {{title}}{% endblock %}
+
+
+{% block script %}
+
+{% block script_ext %}
+{% endblock %}
+
+{% endblock %}
+
+{% block content %}
+
+<div style="float: left; padding: 0; width: 20%; ">
+<b>{{graphs_user_info.first_name|capfirst}} {{graphs_user_info.last_name|capfirst}}</b>
+<div style="background-color: #FFF; width:150px;">
+<p>
+
+{% if graphs_user_info.profile_pic %}
+{% if graphs_user_info.is_page_owner %}
+<a href="/profile/edit/"><img src="/thumbs/190x190/{{ graphs_user_info.profile_pic }}" border=0></a>
+{% else %}
+<a href="{{STATIC_URL}}/{{ graphs_user_info.profile_pic }}"><img src="/thumbs/190x190/{{ graphs_user_info.profile_pic }}" border=0></a>
+{% endif %}
+{% endif %}
+</p>
+</div>
+<div id="profile_navbar">
+{% if title == 'Desk' %}
+<li id="desk" class="selected"><a href="/profile/{{graphs_user_info.username}}/desk/">Desk</a></li>
+{%else%}
+<li id="desk"><a href="/profile/{{graphs_user_info.username}}/desk/">Desk</a></li>
+{%endif%}
+{% if title == 'Solutions' %}
+<li id="solution" class="selected"><a href="/profile/{{graphs_user_info.username}}/solutions/">Solutions</a></li>
+{%else%}
+<li id="solution"><a href="/profile/{{graphs_user_info.username}}/solutions/">Solutions</a></li>
+{%endif%}
+{% if title == 'Info' %}
+<li id="info" class="selected"><a href="/profile/{{graphs_user_info.username}}/info/">Info</a></li>
+{%else%}
+<li id="info"><a href="/profile/{{graphs_user_info.username}}/info/">Info</a></li>
+{%endif%}
+{% if title == 'Scores' %}
+<li id="scores" class="selected"><a href="/profile/{{graphs_user_info.username}}/scores/">Scores</a></li>
+{%else%}
+<li id="scores"><a href="/profile/{{graphs_user_info.username}}/scores/">Scores</a></li>
+{%endif%}
+{% if title == 'Votes' %}
+<li id="votes" class="selected"><a href="/profile/{{graphs_user_info.username}}/votes/">Votes</a></li>
+{%else%}
+<li id="votes"><a href="/profile/{{graphs_user_info.username}}/votes/">Votes</a></li>
+{%endif%}
+{% if title == 'Following Followers' %}
+<li id="follow" class="selected"><a href="/profile/{{graphs_user_info.username}}/follow/">Following/Followers</a></li>
+{%else%}
+<li id="follow"><a href="/profile/{{graphs_user_info.username}}/follow/">Following/Followers</a></li>
+{%endif%}
+
+</div>
+<br />
+{% if user_following_limited_graph.items %}
+<fieldset style="border: 1px #EAEAEA solid;" >
+<legend>Following</legend>
+{% for username, user_follow_graph in user_following_limited_graph.items %}
+<div style="line-height:50px; max-height: 50px; overflow: hidden;">
+<a href="/profile/{{username}}/"><img class="follow" src="/thumbs/20x20/{{ user_follow_graph.profile_pic }}" border=0></a>
+<a href="/profile/{{username}}/">{{user_follow_graph.first_name|capfirst}} {{user_follow_graph.last_name|capfirst}}</a>
+</div>
+{% endfor %}
+</fieldset>
+<br />
+{% endif %}
+
+
+{% if user_followers_limited_graph.items %}
+<fieldset style="border: 1px #EAEAEA solid;">
+<legend>Followers</legend>
+{% for username, user_follower_graph in user_followers_limited_graph.items %}
+<div style="line-height:50px; max-height: 50px; overflow: hidden;">
+<a href="/profile/{{username}}/"><img class="follow" src="/thumbs/20x20/{{ user_follower_graph.profile_pic }}" border=0></a>
+<a href="/profile/{{username}}/">{{user_follower_graph.first_name|capfirst}} {{user_follower_graph.last_name|capfirst}}</a>
+</div>
+{% endfor %}
+</fieldset>
+{% endif %}
+
+
+</div>
+
+<div style="float:left; width:2%; min-height:1px;"></div>
+
+
+<div style="float: left; width: 62%; ">
+
+
+<div style="padding-top: 25px; font-weight: bold;">
+
+{% if request.user.is_authenticated %}
+{% if graphs_user_info.is_followed != 'owner' %}
+<form action="/follow/" method="post" style="font-color:#000; font-weight: bold">
+{% csrf_token %}
+  <input id="follow_val" type="hidden" name="toFOLLOW" value="{{graphs_user_info.username}}" />
+  {% if graphs_user_info.is_followed %}
+  <input type="submit" value="Unfollow" style="float: right" />
+  {% else %}
+  <input type="submit" value="Follow" style="float: right" />
+  {% endif %}
+</form>
+<div style="clear: both; margin-bottom: 10px;"></div>
+{% endif %}
+{% endif %}
+
+
+</div>
+
+<div style="padding: 0;">
+{% block profile_content %}
+{% endblock %}
+</div>
+
+</div>
+
+
+<div style="float:left; width:2%; min-height:1px;"></div>
+
+<div id="home_right" style="float:left;width:14%;" >
+<div style="height: 25px;" ></div>
+
+{% if request.user.is_authenticated %}
+<div id="follow_suggest_widget">
+<div class="ui-widget-header" style="padding: 5px 10px 5px 10px">Who to follow?<div style="float: right"><a id="follow_suggest_refresh" href="#"><img src="{{STATIC_URL}}/icons/refresh.png" height="15px;" border="0" /></a></div><div style="clear:both;"></div>
+</div>
+<div id="follow_suggest" class="ui-widget-content"  style="padding: 20px 10px 10px 10px"></div>
+</div>
+{% endif %}
+</div>
+
+{% endblock %}

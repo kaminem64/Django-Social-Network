@@ -1,0 +1,99 @@
+{% extends "profile_3col.html" %}
+
+
+{% block profile_title %}
+Solutions
+{% endblock %}
+
+{% block script %}
+<script src="{{STATIC_URL}}/javascript/tag-it.js" type="text/javascript" charset="utf-8"></script>
+<link href="{{STATIC_URL}}/css/jquery.tagit.css" rel="stylesheet" type="text/css">
+<!--<script type="text/javascript" src="{{STATIC_URL}}/ckeditor/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}/ckeditor/ckeditor/adapters/jquery.js"></script>-->
+<script src="{{STATIC_URL}}/javascript/nicEdit.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+if ("{{ last_sol|default:"None" }}" != "None"){last_sol = {{ last_sol|default:"None" }};} else {last_sol = "{{ last_sol|default:'None'}}" }
+if ("{{ firstever_sol|default:"None" }}" != "None"){firstever_sol = {{ firstever_sol|default:"None" }};} else { firstever_sol = "{{ firstever_sol|default:'None' }}" }
+user_username = "{{ graphs_user_info.username|default:'NA' }}";
+</script>
+{% endblock %}
+
+{% block profile_content %}
+
+{% if graphs_user_info.is_page_owner %}
+<div id="home-tabs">
+	<ul>
+		<li><a href="#tabs-1">Add Solution</a></li>
+	</ul>
+<div style="border: 1px #EAEAEA solid">
+<div id="tabs-1">
+
+<form action="" method="post" style="font-color:#000; font-weight: bold">
+{% csrf_token %}
+<fieldset style="border: 1px #FFF solid; padding:4px 6px 4px 4px;">
+<p>
+{% if form.errors %}<p id="error">Please complete your Solution</p>{% endif %}</p>
+
+<div><span id="error">{% for error in form.problem.errors %}{{ error }}{% endfor %}</span>{% if not form.problem.errors %}*{% endif %} {{ form.problem.label }}: </div><div>{{ form.problem }}</div>
+
+<div id="problem_desc_form">
+<div><span id="error">{% for error in form.problem_desc.errors %}{{ error }}{% endfor %}</span>{{ form.problem_desc.label }}: </div><div>{{ form.problem_desc }}</div>
+</div>
+<button id="problem_desc_form_toggle" style="float: right; margin-top: 5px;">add description</button>
+<div style="clear: both;"></div>
+
+<div><span id="error">{% for error in form.solution.errors %}{{ error }}{% endfor %}</span>{% if not form.solution.errors %}*{% endif %} {{ form.solution.label }}: </div><div>{{ form.solution }}</div>
+
+<div id="tags_form">
+<div><span id="error">{% for error in form.tags.errors %}{{ error }}{% endfor %}</span>{{ form.tags.label }}: </div><div>{{ form.tags }}</div>
+<ul id="mytags" style="padding: 0px 4px 0px 4px; width: 98%;"></ul>
+</div>
+<button id="tags_form_toggle" style="float: right;">add tags</button>
+<div style="clear: both;"></div>
+
+<div><span id="error">{% for error in form.category.errors %}{{ error }}{% endfor %}</span>{{ form.category.label }}: </div>
+<input type="submit" value="Add Solution" style="float: right;">
+<div>{{ form.category }}</div>
+
+<input type="hidden" name="redirectTo" value="{{ redirectTo|escape }}" />
+</p>
+</fieldset>
+</form>
+</div>
+</div>
+
+</div>
+
+<div style="clear: both; margin-bottom: 10px;"></div>
+<br />
+{% endif %}
+
+
+<div id="sol_temp" class="p_solbox shadow" style="display: none;">
+<div style="float:right">Added: <span id="dateadded" class="rel" title="#"><span id="datetime_added"></span> ago</span></div>
+<div style="font-size: 9px;">Category: <span id="category"><a href="#" class="bidi_text"></a></span> | <b>Viewed:</b> <span id="viewed"></span></div>
+<div style="clear: both"></div>
+<div class="problem_solbox"><b>Problem:</b>&nbsp;<a id="problem" href="#" class="bidi_text"></a></div>
+<div class="problem_desc_solbox"><b>Problem Description:</b><p id="problem_desc" class="bidi_text"></p></div>
+<div class="solution_solbox"><b>Solution:</b><p id="solution" class="bidi_text"></p></div>
+<div id="tags" class="tag_nob">Tags: <a class="tag bidi_text" href="#"></a></div>
+
+<div style="float:right"><a id="view_solution" href="#">view solution</a></div>
+{% if graphs_user_info.is_page_owner %}
+<div style="float:right"><a id="edit_solution" href="#">edit</a></div>
+<div style="float:right">
+<form action="/rm_solution/" method="post">{% csrf_token %}
+  <input id="delete_solution_val" type="hidden" name="toRM" value="#" />
+  <input type="submit" value="delete" id="delete_solution" class="delete_solution" />
+</form>
+</div>
+{% endif %}
+<span id="sol_accept_rate_t" class="accept_rate" title="">Accept rate: <span id="sol_accept_rate">0</span>%</span>
+</div>
+
+
+<div id="afterSolutions" style="margin-bottom: 20px;"></div>
+<div id="profile_no_solutions_container" style="display: none; background: #EAEAEA; padding: 25px;"><div id="profile_no_solutions" style="line-height: 24px; background: url({{STATIC_URL}}/icons/book.png) no-repeat 0px 0px; padding-left: 25px;">There's no solutions developed or forked by {{graphs_user_info.first_name}} {{graphs_user_info.last_name}}.</div></div>
+<button id="more_sol" style="width: 100%;">more</button>
+
+{% endblock %}

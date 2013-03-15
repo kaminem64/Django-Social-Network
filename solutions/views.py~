@@ -1,0 +1,370 @@
+# -*- coding: utf-8 -*-
+from django.contrib import auth
+from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.shortcuts import render_to_response, get_object_or_404
+from solutioner.solutions.forms import *
+from solutioner.solutions.models import Solution, Vote
+from solutioner.categories.models import Category
+import re
+from django.contrib.auth.decorators import login_required
+from django.template import RequestContext
+from solutioner.users.models import User as User_info
+from solutioner.scores.models import Score as User_score
+from django.contrib.auth.models import User as authUser
+from solutioner.users.models import Source
+from solutioner.tags.models import Tag
+from django.utils import simplejson
+from solutioner.users.models import ExternalUser
+from solutioner.users.views import graphs_solution
+from solutioner.users.views import graphs_user
+#from solutioner.comments.models import Comment
+import datetime
+from django.db.models import F
+from django.contrib.contenttypes.models import ContentType
+from solutioner.users.models import Ownership
+from solutioner.events.models import Event
+from solutioner.comments.models import Comment
+from solutioner.comments.views import add_comment, get_comment
+from solutioner.rbac.models import RBACRole, RBACOperation, RBACGenericPermission, get_user_roles
+
+
+def ajax_login_required(view_func):
+  def wrap(request, *args, **kwargs):
+    if request.user.is_authenticated():
+      return view_func(request, *args, **kwargs)
+    json = simplejson.dumps({ 'not_authenticated': True })
+    return HttpResponse(json, mimetype='application/json')
+  wrap.__doc__ = view_func.__doc__
+  wrap.__dict__ = view_func.__dict__
+  return wrap
+
+
+
+@login_required(login_url='/login/')
+def add_solution(request, JSON=True):
+  problem_to_duplicate = Solution.objects.filter(id=request.GET.get('toid'))
+
+  if request.method =='POST':
+    form = AddSolution(request.POST)
+    if form.is_valid():
+      posted = form.cleaned_data
+      new_solution = Solution.objects.create_solution(owner_inst=request.user, source=Source.objects.get(id=1), category=Category.objects.get(name=unicode(posted['category'])), problem=posted['problem'], problem_desc=posted['problem_desc'], solution=posted['solution'])
+      user_score = User_score.objects.get(user=request.user)
+      user_score.solutions_count = int(user_score.solutions_count) + 1
+      user_score.save()
+      new_solution_plus = Solution.objects.get(id=new_solution.id)
+      if posted['tags']:
+        tags=posted['tags']
+        tags = re.findall(r'\S+', tags.replace(',',' '))
+        tag_list = []
+        for tag in tags:
+          tag = tag.strip()
+          tag = tag[:50]
+          tag = tag.lower()
+          try:
+            selected_tag = Tag.objects.get(name=tag)
+            new_solution_plus.tags.add(selected_tag)
+            selected_tag.used_no = int(selected_tag.used_no) + 1
+            selected_tag.save()
+          except:
+            new_tag = Tag(name=tag, used_no=1)
+            new_tag.save()
+            new_solution_plus.tags.add(new_tag)
+
+      uncomplete = False
+      return uncomplete
+
+  else:
+    if problem_to_duplicate:
+      form = AddSolution(initial={'problem': problem_to_duplicate[0].problem, 'problem_desc': problem_to_duplicate[0].problem_desc, 'tags': ','.join(problem_to_duplicate[0].tags.values_list('name', flat=True)), 'category': problem_to_duplicate[0].category})
+    else:
+      form = AddSolution()
+  return form
+
+#----SYNC-----------------------------------------------------------------------------------------------------
+def sync_user_score():
+  for user_score in User_score.objects.all():
+    user_score.solutions_count = Solution.objects.filter(owner_id=user_score.user.id, is_deleted=False).count()
+    user_score.voted_count = Vote.objects.filter(is_deleted=False, solution_owner=user_score.user).count()
+    voted = 0
+    for vote in Vote.objects.filter(is_deleted=False, solution_owner=user_score.user):
+      voted = voted + vote.vote
+    user_score.voted = voted
+    user_score.save()
+  return "Done"
+
+def sync_sol_score():
+  for solution in Solution.objects.all():
+    solution.votes_count = Vote.objects.filter(is_deleted=False, solution=solution).count()
+    votes_sum = 0
+    for vote in Vote.objects.filter(is_deleted=False, solution=solution):
+      votes_sum = votes_sum + vote.vote
+    solution.votes_sum = votes_sum
+    solution.save()
+  return "Done"
+
+def sync_tag_used_no():
+  count_no = 0
+  for tag in Tag.objects.all():
+    tag.used_no = Tag.objects.get(name=tag).solution_tags.count()
+    tag.save()
+    count_no = count_no + 1
+  return count_no
+#----SYNC-----------------------------------------------------------------------------------------------------
+
+@ajax_login_required
+def rm_solution(request):
+  try:
+    JSON = request.GET['JSON']
+  except:
+    JSON = False
+  error = 'error'
+  redirectTo ='/profile/'+request.user.username
+  try:
+    if request.method =='POST':
+      toRM = int(request.POST['toRM'])
+      toRM_sol = Solution.objects.get(id=toRM)
+      solution_ownership = Ownership.objects.get_ownership(toRM_sol)
+      #--delete-pemission-check-------------------------------------------
+      if (solution_ownership.owner_id, solution_ownership.owner_ct ) == (request.user.id, ContentType.objects.get_for_model(request.user) ):
+        user_score = User_score.objects.get(user=toRM_sol.owner)
+        user_score.solutions_count = int(user_score.solutions_count) - 1
+        votes = Vote.objects.filter(is_deleted=False, solution=toRM_sol)
+        for vote in votes:
+          vote.is_deleted = 1
+          vote.save()
+          user_score.voted_count = int(user_score.voted_count) - 1
+          user_score.voted = int(user_score.voted) - int(vote.vote)
+          user_score.save()
+        user_score.save()
+        for tag in toRM_sol.tags.all():
+          selected_tag = Tag.objects.get(name=tag)
+          selected_tag.used_no = int(selected_tag.used_no) - 1
+          selected_tag.save()
+        toRM_sol.is_deleted = 1
+        toRM_sol.save()
+        solution_ownership.is_deleted = 1
+        solution_ownership.save()
+  except:
+    pass
+  if JSON:
+    return HttpResponse(simplejson.dumps({'status':'done', 'redirectTo': redirectTo}, sort_keys=True, indent=4), content_type = 'application/json')
+  else:
+    return HttpResponseRedirect(redirectTo)
+
+
+def most_recent_sols(from_no=0, quant=20):
+  return Solution.objects.filter(is_deleted=False).order_by('-datetime_added')[from_no:quant]
+
+def most_pop_sols(from_no=0, quant=20):
+  return Solution.objects.filter(is_deleted=False).order_by('-viewed')[from_no:quant]
+
+def view_solution(request, solution_id):
+  try:
+    redirectTo = re.search(r'http://[-.\w\d]+/(.+)', request.META['HTTP_REFERER']).group(1)
+    redirectTo = '/'+redirectTo
+  except:
+    redirectTo = '/'
+  real_solution_id = int(solution_id)
+  needed_solution = get_object_or_404(Solution, id=real_solution_id, is_deleted=False)
+  owner_score = User_score.objects.get(user=needed_solution.owner)
+  if request.user != needed_solution.owner:
+    owner_score.viewed_count = int(owner_score.viewed_count) + 1
+    owner_score.save()
+    try:
+      needed_solution.viewed = int(needed_solution.viewed) + 1
+    except:
+      needed_solution.viewed = 0
+    needed_solution.save()
+  graphs_user_info = graphs_user(request, user_username=needed_solution.owner.username, external=False, JSON=False, score=True)
+
+  add_comment_av = False
+  if RBACGenericPermission.objects.get_user_permission(needed_solution.owner, Solution, 'add_comment', request.user):
+    add_comment_av = True
+  if add_comment_av: #if permissions pass POST vars come to account
+    form = add_comment(request, object_inst=needed_solution , JSON=False)
+    if not form: #DONE!
+      return HttpResponseRedirect(redirectTo)
+  else:
+    form = None
+    
+  if request.user.is_authenticated() and request.user != needed_solution.owner:
+    user_score = User_score.objects.get(user=request.user)
+    user_score.views_count = int(user_score.views_count) + 1
+    user_score.save()
+      
+  graphs_solution_info = graphs_solution(request, real_solution_id, JSON=False)
+  tags = Solution.objects.get(id=real_solution_id).tags.all()
+  soltags = Solution.objects.filter(tags__in=list(tags)).exclude(id=real_solution_id)[0:20]
+  mostpops = most_recent_sols()
+  latestsols = most_pop_sols()
+  comments = get_comment(request=request, operation='view_comment', owner=needed_solution.owner, model=Solution, order_by='-datetime', limit=10, object_inst=needed_solution)
+  return render_to_response('view_solution.html',{ 'graphs_solution_info': graphs_solution_info, 'graphs_user_info': graphs_user_info,'soltags':soltags, 'mostpops':mostpops, 'latestsols':latestsols, 'form': form, 'add_comment_av': add_comment_av, 'comments': comments }, context_instance=RequestContext(request))
+  
+def fork_solution(request):
+  try:
+    redirectTo = re.search(r'http://[-.\w\d]+/(.+)', request.META['HTTP_REFERER']).group(1)
+    redirectTo = '/'+redirectTo
+  except:
+    redirectTo = '/'
+  try:
+    toFORK = int(request.POST['toFORK'])
+  except:
+    toFORK = False
+  if toFORK:
+    forked_sol = Solution.objects.get(id=toFORK)
+    fork = Solution.objects.create_solution(owner_inst=request.user, source=Source.objects.get(id=1), category=forked_sol.category, problem=forked_sol.problem, problem_desc=forked_sol.problem_desc, solution=forked_sol.solution)
+    return HttpResponseRedirect('/solutions/edit/%s/?forked=True'%fork.id)
+  else:
+    return HttpResponseRedirect(redirectTo)
+
+@ajax_login_required
+def ajax_sol_vote(request, sol_id):
+  real_solution_id = int(sol_id)
+  vote_value = int(request.POST.get('voteVal'))
+  unvote = request.POST.get('unvote')
+  if vote_value > 100 or vote_value < -100:
+    vote_value = 0
+  try:
+    needed_solution = Solution.objects.get(id=real_solution_id, is_deleted=False)
+  except:
+    return HttpResponse(simplejson.dumps({'error': True}, sort_keys=True, indent=4), content_type = 'application/json')
+
+  try:
+    if request.user.is_authenticated and request.user == needed_solution.owner:
+      is_author = True
+    else:
+      is_author = False
+  except:
+    is_author = False
+  if is_author:
+    json = simplejson.dumps({ 'is_author': True })
+    return HttpResponse(json, mimetype='application/json')
+
+  voter_score, c = User_score.objects.get_or_create(user=request.user)
+  vote, c = Vote.objects.get_or_create_vote(solution=needed_solution, solution_owner=needed_solution.owner, user=request.user)
+  is_deleted = True if unvote=='true' else False
+  try:
+    voted_score = User_score.objects.get(user=needed_solution.owner)
+    is_external = False
+  except:
+    voted_score = User_score.objects.get(external_user=needed_solution.external_answerer)
+    is_external = True
+  if c and not is_deleted:
+    voter_score.votes_count = int(voter_score.votes_count) + 1
+    voted_score.voted_count = int(voted_score.voted_count) + 1
+    needed_solution.votes_count = int(needed_solution.votes_count) + 1
+    needed_solution.votes_sum = int(needed_solution.votes_sum) + vote_value
+    voted_score.voted = int(voted_score.voted) + vote_value
+  elif not c and is_deleted:
+    voter_score.votes_count = int(voter_score.votes_count) - 1
+    voted_score.voted_count = int(voted_score.voted_count) - 1
+    needed_solution.votes_count = int(needed_solution.votes_count) - 1
+    needed_solution.votes_sum = int(needed_solution.votes_sum) - int(vote.vote) + vote_value
+    voted_score.voted = int(voted_score.voted) - int(vote.vote) + vote_value
+  elif not c and not is_deleted:
+    needed_solution.votes_sum = int(needed_solution.votes_sum) - int(vote.vote) + vote_value
+    voted_score.voted = int(voted_score.voted) - int(vote.vote) + vote_value
+  vote.is_deleted = is_deleted
+  vote.vote = vote_value
+  vote.datetime = datetime.datetime.now()
+  vote.save()
+  voter_score.save()
+  voted_score.save()
+  needed_solution.save()
+
+  if not is_external:
+    graphs_user_info = graphs_user(request=request, user_username=needed_solution.owner.username, external=False, JSON='JSON_ready', score=True)
+  else:
+    graphs_user_info = graphs_user(request=request, user_username=needed_solution.external_answerer.id, external=True, JSON='JSON_ready', score=True)
+  results = {'graphs_solution_info': graphs_solution(request, real_solution_id, JSON='JSON_ready'), 'graphs_user_info': graphs_user_info}
+  return HttpResponse(simplejson.dumps(results, sort_keys=True, indent=4), content_type = 'application/json')
+
+
+def per_page_creator(request, table, table_type=None, default_per_no=10, order='-datetime_added'):
+  try:
+    page_no = int(request.GET.get('page_no'))
+    if page_no < 1:
+      page_no = 1
+  except:
+    page_no = 1
+  try:
+    per_page = int(request.GET.get('per_page'))
+    if per_page > 100 or per_page < 1:
+      per_page = default_per_no
+  except:
+    per_page = default_per_no
+  if not page_no:
+    page_no = 1
+  if not per_page:
+    per_page = default_per_no
+  table_list_len = table.count()
+  categories = []
+  per_page_alloc = per_page
+  if table:
+    if per_page > table_list_len:
+      per_page = table_list_len
+    table_list = table.all().order_by(order)[per_page*(page_no-1):per_page*page_no]
+    if table_list_len < per_page:
+      total_pages = 1
+    elif (table_list_len % per_page) == 0:
+      total_pages = xrange(1,(table_list_len/per_page)+1)
+    else:
+      total_pages = xrange(1,((table_list_len/per_page)+1)+1)
+    total_pages_len = len(total_pages)
+    page_bar_mid = []
+    page_bar_left = False
+    page_bar_right = False
+    if page_no == 1 or page_no == 2:
+      if total_pages_len <= 5:
+        page_bar_mid = xrange(1,total_pages_len+1)
+      else:
+        page_bar_mid = xrange(1,6)
+    elif page_no == total_pages_len or page_no == total_pages_len-1:
+      if total_pages_len <= 5:
+        page_bar_mid = xrange(1,total_pages_len+1)
+      elif page_no == total_pages_len:
+        page_bar_mid = xrange(page_no-4,total_pages_len+1)
+      else:
+        page_bar_mid = xrange(page_no-3,total_pages_len+1)        
+    else:
+      if total_pages_len <= page_no+2:
+        page_bar_mid = xrange(page_no-2,total_pages_len+1)
+      else:
+        page_bar_mid = xrange(page_no-2,page_no+3)
+    if not 1 in page_bar_mid:
+      page_bar_left = 1
+    if not total_pages_len in page_bar_mid:
+      page_bar_right = total_pages_len   
+    if page_no < total_pages_len:
+      next_page = page_no + 1
+    else:
+      next_page = False
+    if page_no > 1:
+      previous_page = page_no - 1
+    else:
+      previous_page = False
+    previous_page = page_no - 1
+    first_link_no = ((page_no-1)*per_page)
+    if table_type == 'solution':
+      solutions_list = []
+      for needed_solution in table_list:
+        solutions_list.append(graphs_solution(request, needed_solution.id, JSON='JSON_ready', safe=True))
+        if not needed_solution.category.name in categories:
+          categories.append(needed_solution.category.name)
+      table_list = solutions_list
+    output_dict = {'table_list': table_list,'current_page': page_no, 'first_link_no': first_link_no, 'next_page': next_page, 'previous_page': previous_page, 'page_bar_right': page_bar_right, 'page_bar_left': page_bar_left, 'page_bar_mid': page_bar_mid, 'per_page': per_page, 'per_page_alloc': per_page_alloc, 'total_pages': total_pages, 'default_per_no': default_per_no, 'table_list_len':table_list_len, 'categories': categories, 'no_content': False}
+  else:
+    output_dict = {'table_list_len':table_list_len, 'categories': categories, 'no_content': True}
+
+  return output_dict
+
+
+def solutionList(request):
+  output_dict = per_page_creator(request, Solution.objects.filter(is_deleted=False), 'solution')
+  return render_to_response('solutions_view.html', output_dict, context_instance=RequestContext(request))
+
+
+
+
+

@@ -1,0 +1,307 @@
+{% extends "2col.html" %}
+
+{% block title %}[solved] | {{ graphs_solution_info.problem|safe }}{% endblock %}
+{% block script %}
+
+<script type="text/javascript">
+
+rgbRangeAct_view_solution = {%if graphs_solution_info.sol_user_accept_rate%}{{ graphs_solution_info.sol_user_accept_rate }}{%else%}{{graphs_solution_info.sol_accept_rate}}{%endif%};
+graphs_solution_info_id_view_solution = {{ graphs_solution_info.id }};
+user_accept_rate_view_solution = "{{ graphs_solution_info.sol_user_accept_rate }}";
+{% if graphs_solution_info.sol_user_is_voted %}
+sol_user_is_voted = true;
+{% else %}
+sol_user_is_voted = false;
+{% endif %}
+
+$(document).ready(function() {
+{% if graphs_solution_info.category == 'Computer' %}
+$("pre").addClass("prettyprint");
+prettyPrint();
+{% endif %}
+});
+</script>
+
+{% if graphs_solution_info.category == 'Mathematics' %}
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: { inlineMath: [ ["$", "$"], ["\\\\(","\\\\)"] ], displayMath: [ ["$$","$$"], ["\\[", "\\]"] ], processEscapes: true, ignoreClass: "tex2jax_ignore|dno" }
+  });
+</script>    
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>       
+{% endif %}
+    
+{% endblock %}
+
+
+
+
+
+
+
+<div id="view_solution">
+
+
+{% block leftcol %}
+<div class="problem_desc_solution_container">
+<div id="useful_unuseful_bar">
+Added: <span id="dateadded" class="rel" title="{{ graphs_solution_info.datetime_added }}">{{ graphs_solution_info.datetime_added|timesince }} ago</span>
+</div>
+<div class="ui-widget" >
+<div class="ui-widget-header" id="problem_container_topbar">
+Problem
+</div>
+
+<div id="problem_container_bodytext"  class="bidi_text">
+{{ graphs_solution_info.problem|safe }}
+</div>
+</div>
+
+
+{% if graphs_solution_info.problem_desc %}
+<div class="ui-widget" >
+<div class="ui-widget-header" id="problem_desc_container_topbar">
+Problem Description
+</div>
+<div id="problem_desc_container_bodytext"  class="bidi_text">
+<p>{{ graphs_solution_info.problem_desc|safe }}</p>
+</div>
+</div>
+{% endif %}
+
+
+{% if graphs_user_info.is_page_owner %}
+<div id="edit_delete_bar">
+<div style="float:right"><a id="edit_solution" href="/solutions/edit/{{ graphs_solution_info.id }}/">edit</a></div>
+<div style="float:right">
+<form action="/rm_solution/" method="post" >{% csrf_token %}
+  <input type="hidden" name="toRM" value="{{ graphs_solution_info.id }}" />
+  <input type="submit" value="delete" id="delete_solution" class="delete_solution" />
+</form>
+</div>
+
+</div>
+
+{% else %}
+<div id="useful_unuseful_bar" >
+
+<div style="float:left">
+<span>This Solution was</span>
+</div>
+
+<div style="float:left">
+<input type="text" id="amount" style="border:0; color:#009EB3; font-size:11px; width:32px; height:10px; margin-right: 2px;" />
+<div id="slider-range-min" style="float:left; width:100px; margin: 0px 10px 0px 10px;"></div>
+</div>
+
+<div style="float:left">useful for me <span id="unvote" style="display: none;">(<a href="#">unvote</a>)</span></div>
+
+</div>
+{% endif %}
+
+
+<div id="solution_container_topbar">
+Solution
+</div>
+
+<div id="solution_container_bodytext" class="bidi_text">{{ graphs_solution_info.solution|safe }}</div>
+{% if graphs_solution_info.tags %}<div id="tag_container" class="tag_nob">Tags: {% for tag in graphs_solution_info.tags %}<a class="tag" href="/tags/{{tag|urlencode}}">{{ tag|safe }}</a>&nbsp; {% endfor %}
+</div>{% endif %}
+
+</div>
+
+<div style="margin-top: 20px;">
+<div style="float:right">
+<form action="/solutions/fork/" method="post" >{% csrf_token %}
+  <input type="hidden" name="toFORK" value="{{ graphs_solution_info.id }}" />
+  <input type="submit" value="fork" id="fork_solution" style="background-image: url({{STATIC_URL}}/icons/fork25.png); background-repeat: no-repeat background-position: 1px 1px; padding-left: 30px;" />
+</form>
+</div>
+
+<div class="fb-like" data-href="http://solutioner.net{{ request.get_full_path }}" data-send="true" data-layout="button_count" data-width="50" data-show-faces="false" data-action="recommend"></div>
+</div>
+<div style="clear: both;"></div>
+<div><p><b>You know a better solution for this problem? 
+{% if request.user.is_authenticated %}
+{% if graphs_user_info.is_page_owner %}
+<a href="/solutions/edit/{{ graphs_solution_info.id }}/">Edit this Solution</a>
+{% else %}
+<a href="/profile/{{ request.user.username }}/solutions/?toid={{ graphs_solution_info.id }}">Add a New Solution</a>
+{% endif %}
+{% else %}
+<a href="/login/">Login</a> or <a href="/register/">Sign Up</a> and Add a New Solution
+{% endif %}</b></p></div>
+
+
+
+
+{% if add_comment_av %}
+<div id="home-tabs">
+	<ul>
+		<li><a href="#tabs-1">Comment</a></li>
+	</ul>
+<div style="border: 1px #dfe5f0 solid">
+<div id="tabs-1">
+<form action="" method="post" style="font-color:#000; font-weight: bold">
+{% csrf_token %}
+<fieldset style="border: 1px #FFF solid; padding:4px 6px 4px 4px;">
+<p>
+
+<div><span id="error">{% for error in form.message.errors %}{{ error }}{% endfor %}</span></div><div>{{ form.message }}</div>
+
+<input type="submit" value="Comment" style="float: right;">
+
+</p>
+</fieldset>
+</form>
+</div>
+</div>
+</div>
+<div style="clear: both; margin-bottom: 10px;"></div>
+<br />
+{% endif %}
+{% for comment in comments %}
+{% include "update_box/comment_sol_box.html"%}
+<div style="height: 20px;"></div>
+{% endfor %}
+<br />
+
+
+{% if soltags %}
+<div class="ui-widget" id="home_left_bar" style="margin:0; margin-bottom: 20px;">
+<div class="ui-widget-header" style="padding: 5px 10px 5px 10px">Related solutions</div>
+<div>
+<ul>
+{% for soltag in soltags %}
+<li>
+<li><a href="/solutions/view/{{soltag.id}}/" class="bidi_text">{{soltag.problem|safe}}</a></li><hr />
+</li>
+{% endfor %}
+</ul>
+</div>
+</div>
+{% endif %}
+
+
+{% if mostpops %}
+<div class="ui-widget" id="home_left_bar" style="margin:0; margin-bottom: 20px;">
+<div class="ui-widget-header" style="padding: 5px 10px 5px 10px">Most popular solutions</div>
+<div>
+<ul>
+{% for mostpop in mostpops %}
+<li>
+<li><a href="/solutions/view/{{mostpop.id}}/" class="bidi_text">{{mostpop.problem|safe}}</a></li><hr />
+</li>
+{% endfor %}
+</ul>
+</div>
+</div>
+{% endif %}
+
+{% if latestsols %}
+<div class="ui-widget" id="home_left_bar" style="margin:0; margin-bottom: 20px;">
+<div class="ui-widget-header" style="padding: 5px 10px 5px 10px">Latest solutions</div>
+<div>
+<ul>
+{% for latestsol in latestsols %}
+<li><a href="/solutions/view/{{latestsol.id}}/" class="bidi_text">{{latestsol.problem|safe}}</a></li><hr />
+{% endfor %}
+</ul>
+</div>
+
+</div>
+{% endif %}
+
+{% endblock %}
+
+
+{% block beforeads %}
+<div class="ui-widget" >
+<div class="ui-widget-header profile_stat_header">
+About Author
+</div>
+<div class="ui-widget-content profile_stat_container">
+ 
+<p align="center"><a href="{% if graphs_solution_info.is_external %}{{ graphs_user_info.url }}{% else %}/profile/{{ graphs_user_info.username }}{% endif %}"><img src="{% if graphs_solution_info.is_external %}{{ graphs_user_info.profile_pic }}{% if graphs_user_info.profile_pic != 'http://cdn.sstatic.net/stackoverflow/img/apple-touch-icon.png' %}&s=128{% endif %}{% else %}/thumbs/120x120/{{ graphs_user_info.profile_pic }}{% endif %}" border="0"></a></p>
+
+<div>
+<p style="font-size: 13px; text-align: center;"><a href="{% if graphs_solution_info.is_external %}{{ graphs_user_info.url }}{% else %}/profile/{{ graphs_user_info.username }}{% endif %}">{% if graphs_solution_info.is_external %}{{ graphs_user_info.username }}{% else %}{{ graphs_user_info.first_name }} {{ graphs_user_info.last_name }}{% endif %}</a></p>
+</div>
+
+
+{% if not graphs_solution_info.is_external %}
+<div>
+Level: <span id="level">{{ graphs_user_info.level }}</span>
+</div>
+<div>
+<span>Main Attribute: {{ graphs_user_info.main_attr }}</span>
+</div>
+<div>
+Total Solutions From: <span id="solutions_count">{{ graphs_user_info.solutions_count }}</span>
+</div>
+<div>
+Total Viewed: <span id="viewed_count">{{ graphs_user_info.viewed_count }}</span>
+</div>
+<div>
+Total Votes Got: <span id="total_voted_count">{{ graphs_user_info.total_voted_count }}</span>
+</div>
+
+<div id="user_accept_rate" class="accept_rate" title="{{ graphs_user_info.accept_rate }}">
+Accept rate: <span id="accept_rate">{{ graphs_user_info.accept_rate }}</span>%
+</div>
+<div>Viewing Score: <span id="viewer_score">{{graphs_user_info.viewer_score}}</span></div>
+<div>Criticizing Score: <span id="critic_score">{{graphs_user_info.critic_score}}</span></div>
+<div>Developing Score: <span id="develop_score">{{graphs_user_info.develop_score}}</span></div>
+<div>Total Score: <span id="total_score">{{ graphs_user_info.total_score }}</span></div>
+
+{% else %}
+
+<div>
+Total Solutions From: <span id="solutions_count">{{ graphs_user_info.solutions_count }}</span>
+</div>
+<div>
+Total Viewed: <span id="viewed_count">{{ graphs_user_info.viewed_count }}</span>
+</div>
+<div>
+Total Votes Got: <span id="total_voted_count">{{ graphs_user_info.total_voted_count }}</span>
+</div>
+<div class="accept_rate" title="{{ graphs_user_info.accept_rate }}">
+Accept rate: <span id="accept_rate" >{{ graphs_user_info.accept_rate }}</span>%
+</div>
+{% endif %}
+<br />
+
+</div>
+</div>
+
+<br />
+
+<div class="ui-widget" >
+<div class="ui-widget-header profile_stat_header">
+About This Solution
+</div>
+
+<div class="ui-widget-content profile_stat_container">
+{% if graphs_solution_info.is_external %}<a href="{{ graphs_solution_info.external_url }}">Link to the original page</a>{% endif %}
+<div>Solution ID: #{{ graphs_solution_info.id }}</div>
+<div>Category: {{ graphs_solution_info.category }}</div>
+<div id="sol_accept_rate" class="accept_rate"  title="{{ graphs_solution_info.sol_accept_rate }}"><p>Accept rate: <span id="sol_accept_rate_span">{{ graphs_solution_info.sol_accept_rate }}</span>% through <span id="sol_votes_count">{{ graphs_solution_info.sol_votes_count }}</span> vote{{ graphs_solution_info.sol_votes_count|pluralize }}</p></div>
+
+<div><p>Source: <a href="{{ graphs_solution_info.source.url }}" title="{{ graphs_solution_info.source.source }}">{{ graphs_solution_info.source.source }}</a></p>
+<p>License{{ graphs_solution_info.source.licenses.items|length|pluralize }}: {% for license,license_url in graphs_solution_info.source.licenses.items %}<a href="{{ license_url }}">{{ license }}</a>&nbsp; {% endfor %}</p></div>
+
+<div>Viewed: {{ graphs_solution_info.viewed }} Time{{ graphs_solution_info.viewed|pluralize }}</div>
+<div>Added: <span id="dateadded" class="rel" title="{{ graphs_solution_info.datetime_added }}">{{ graphs_solution_info.datetime_added|timesince }} ago</span></div>
+
+</div>
+</div>
+
+
+{% endblock %}
+
+
+
+</div>
+
+
+

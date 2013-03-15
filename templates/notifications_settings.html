@@ -1,0 +1,27 @@
+{% extends "settings.html" %}
+
+{% block title %}Notifications Settings{% endblock %}
+
+
+{% block form_content %}
+<b>Notifications Settings</b>
+{% if saved %}
+<div><span style="color: green;">Changes have been saved</span></div>
+{% endif %}
+<hr>
+<p>In following cases an email will be sent to your primary email address:</p>
+<table>
+  <tbody>
+    <tr>
+      <td><label for="idcomment_on_desk">When someone post on your desk</label></td>
+      <td>{{ form.comment_on_desk }}</td>
+      <td><div id="error">{% for error in form.comment_on_desk.errors %}{{ error }}{% endfor %}</div></td>
+    </tr>
+    <tr>
+      <td><label for="id_comment_on_solution">When someone comment on your solution</label></td>
+      <td>{{ form.comment_on_solution }}</td>
+      <td><div id="error">{% for error in form.comment_on_solution.errors %}{{ error }}{% endfor %}</div></td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}

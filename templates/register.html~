@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Registration{% endblock %}
+
+{% block content %}
+<div>
+  <h1>Registration</h1>
+{% if form.errors %}
+  <p id="error">Please ...</p>
+{% endif %}
+  <form action="" method="post">
+<table>
+  <tbody>
+    <tr>
+      <td><label for="id_username">{{ form.username.label }}:</label></td>
+      <td>{{ form.username }}</td>
+      <td><div id="error">{% for error in form.username.errors %}{{ error }}{% endfor %}</div></td>
+    </tr>
+    <tr>
+      <td><label for="id_password">{{ form.password.label }}:</label></td>
+      <td>{{ form.password }}</td>
+      <td><div id="error">{% for error in form.password.errors %}{{ error }}{% endfor %}</div></td>
+    </tr>
+    <tr>
+      <td><label for="id_cpassword">{{ form.cpassword.label }}:</label></td>
+      <td>{{ form.cpassword }}</td>
+      <td><div id="error">{% for error in form.cpassword.errors %}{{ error }}{% endfor %}</div></td>
+    </tr>
+    <tr>
+      <td><label for="id_emailaddress">{{ form.emailaddress.label }}:</label></td>
+      <td>{{ form.emailaddress }}</td>
+      <td><div id="error">{% for error in form.emailaddress.errors %}{{ error }}{% endfor %}</div></td>
+    </tr>
+    <tr>
+      <td><label for="id_firstname">{{ form.firstname.label }}:</label></td>
+      <td>{{ form.firstname }}</td>
+      <td><div id="error">{% for error in form.firstname.errors %}{{ error }}{% endfor %}</div></td>
+    </tr>
+    <tr>
+      <td><label for="id_lastname">{{ form.lastname.label }}:</label></td>
+      <td>{{ form.lastname }}</td>
+      <td><div id="error">{% for error in form.lastname.errors %}{{ error }}{% endfor %}</div></td>
+    </tr>
+  </tbody>
+</table>
+{{ form.CAPTCHA }}
+<div id="error">{% if recaptchaError %}Pleas re-enter the Captcha{% endif %}</div>
+        {{ html_captcha|safe }}
+  <input type="submit" value="Sign Up">
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "profile_3col.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block profile_title %}
+Desk
+{% endblock %}
+
+
+{% block script_ext %}
+<script type="text/javascript">
+last_event = {{ last_event }};
+firstever_event = {{ firstever_event }};
+page_owner = "{{graphs_user_info.username}}";
+</script>
+{% endblock %}
+
+
+{% block profile_content %}
+
+{% if request.user.is_authenticated %}
+{% if post_desk %}
+<div id="home-tabs">
+	<ul>
+		<li><a href="#tabs-1">Post to desk</a></li>
+	</ul>
+<div style="border: 1px #EAEAEA solid">
+
+<div id="tabs-1">
+
+<form action="" method="post" style="font-color:#000; font-weight: bold">
+{% csrf_token %}
+
+<fieldset style="border: 1px #FFF solid; padding:4px 6px 4px 4px;">
+<p>
+
+<div><span id="error">{% for error in form.message.errors %}{{ error }}{% endfor %}</span>{% if not form.message.errors %}*{% endif %} {{ form.message.label }}: </div><div>{{ form.message }}</div>
+
+<input type="submit" value="Post" style="float: right;">
+
+<input type="hidden" name="redirectTo" value="{{ redirectTo|escape }}" />
+</p>
+</fieldset>
+
+</form>
+</div>
+
+
+</div>
+</div>
+
+<div style="clear: both; margin-bottom: 10px;"></div>
+
+<br />
+{% endif %}
+{% endif %}
+
+
+{% for event in events %}
+  {% include "box_manager.html" %}
+{% endfor %}
+<div id="afterEvents" style="margin-bottom: 20px;"></div>
+<button id="more_profile" style="width: 100%;">more</button>
+
+
+<!-- templates -->
+<div id="event_temp" class="shadow" style="display: none; border: 1px #EAEAEA solid; background-color: #FFF; padding:0px 10px 0px 10px;">
+<p>
+<div style="float: right;"><span id="datetime_since" title=""></span> ago</div>
+<div style="float: left; margin: 0px 10px 10px 0px;"><a id="profile_pic_href" href="#"><img id="profile_pic_src" src="#" border="0" /></a></div>
+<div id="event_text"></div>
+<div id="in_box" style="margin: 20px 0px 0px 50px;"></div>
+<div style="clear:both;"></div>
+</p>
+</div>
+
+
+<div id="event_post_text" style="display: none;"><a id="event_operator" href="#"></a> posted on <a id="event_owner" href="#"></a>&nbsp;<a id="event_object" href="#"></a>:</div>
+<div id="event_add_solution_text" style="display: none;"><a id="event_operator" href="#"></a> added a new <a id="event_object" href="#"></a>:</div>
+<div id="event_edit_solution_text" style="display: none;"><a id="event_operator" href="#"></a> edited <a id="event_owner" href="#"></a>&nbsp;<a id="event_object" href="#"></a>:</div>
+
+
+<div id="sol_temp" class="p_solbox" style="display: none;">
+<div style="float:right">Added: <span id="dateadded" class="rel" title="#"><span id="datetime_added"></span> ago</span></div>
+<div style="font-size: 9px;">Category: <span id="category"><a href="#" class="bidi_text"></a></span> | <b>Viewed:</b> <span id="viewed"></span></div>
+<div style="clear: both"></div>
+<div class="problem_solbox"><b>Problem:</b>&nbsp;<a id="problem" href="#" class="bidi_text"></a></div>
+<div class="problem_desc_solbox"><b>Problem Description:</b><p id="problem_desc" class="bidi_text"></p></div>
+<div class="solution_solbox"><b>Solution:</b><p id="solution" class="bidi_text"></p></div>
+<div id="tags" class="tag_nob">Tags: <a class="tag bidi_text" href="#"></a></div>
+<div style="float:right"><a id="view_solution" href="#">view solution</a></div>
+<div style="float:right"><a id="edit_solution" href="#">edit</a>|</div>
+<div id="delete_solution_f" style="float:right">
+<form action="/rm_solution/" method="post">
+  <input id="delete_solution_val" type="hidden" name="toRM" value="#" />
+  <input type="submit" value="delete" id="delete_solution" class="delete_solution" />
+</form>
+</div>
+<span id="sol_accept_rate_t" class="accept_rate" title="">Accept rate: <span id="sol_accept_rate">0</span>%</span>
+</div>
+
+
+
+<div id="cm_temp" style="display: none;">
+<p id="message" style="background-color: #EAEAEA; padding:5px;"></p>
+<div id="delete_comment_f" style="float: right"><form action="/rm_comment/" method="post" >
+  <input id="delete_comment_val" type="hidden" name="toRM" value="" />
+  <input type="submit" value="delete" id="delete_solution" class="delete_comment" />
+</form></div>
+<div style="clear:both;"></div>
+</p>
+</div>
+<!-- templates -->
+
+
+{% endblock %}
+
+
+
+
+
+

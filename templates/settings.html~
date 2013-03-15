@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Settings{% endblock %}
+
+{% block script %}
+<link type="text/css" href="{{STATIC_URL}}/css/themes/base/jquery.ui.selectmenu.css" rel="stylesheet" />
+<script type="text/javascript" src="{{STATIC_URL}}/javascript/ui/jquery.ui.selectmenu.js"></script>
+{% block script_ext %}{% endblock %}
+{% endblock %}
+
+
+{% block content %}
+<div class="privacysettings_nav">
+<ul>
+<li><a class="gearbutton" style="width:100%" href="/profile/edit/">Profile Settings</a></li>
+<li><a class="gearbutton" style="width:100%" href="/profile/edit/privacy/settings/">Privacy Settings</a></li>
+<li><a class="gearbutton" style="width:100%" href="/profile/edit/notifications/settings/">Notifications Settings</a></li>
+<li><a class="gearbutton" style="width:100%" href="/profile/edit/password/change/">Change Password</a></li>
+</ul>
+</div>
+{% if user.is_authenticated %}
+<div class="privacysettings_profile shadow">
+<form action="" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+<div style="float: right"><input type="submit" value="Save Changes"></div>
+{% block form_content %}
+<b>Privacy Settings</b>
+{% if saved %}
+<div><span style="color: green;">Changes have been saved</span></div>
+{% endif %}
+<hr>
+<p>Profile permission settings are in <a href="/profile/edit/">Profile Settings</a> section.</p>
+<table>
+  <tbody>
+    <tr>
+      <td><label for="idcomment_on_desk">Who can see your updates others posts on your desk?</label></td>
+      <td>{{ form.comment_on_desk }}</td>
+      <td><div id="error">{% for error in form.comment_on_desk.errors %}{{ error }}{% endfor %}</div></td>
+    </tr>
+    <tr>
+      <td><label for="id_comment_on_solution">Who can post on your desk?</label></td>
+      <td>{{ form.comment_on_solution }}</td>
+      <td><div id="error">{% for error in form.comment_on_solution.errors %}{{ error }}{% endfor %}</div></td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}
+</form>
+</div>
+{% else %}
+<p>Your're not logged in</p>
+{% endif %}
+		
+{% endblock %}

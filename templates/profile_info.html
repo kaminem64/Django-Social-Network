@@ -1,0 +1,27 @@
+{% extends "profile_3col.html" %}
+
+{% block profile_title %}
+Info
+{% endblock %}
+
+{% block profile_content %}
+
+<p>First Name: {{ graphs_user_info.first_name|capfirst }}</p>
+<p>Last Name: {{ graphs_user_info.last_name|capfirst }}</p>
+{% if graphs_user_info.gender %}
+<p>Gender: {{ graphs_user_info.gender }}</p>
+{% endif %}
+{% if graphs_user_info.email %}
+<p>Email Address: {{ graphs_user_info.email }}</p>
+{% endif %}
+{% if graphs_user_info.website %}
+<p>Website: {{ graphs_user_info.website }}</p>
+{% endif %}
+{% if graphs_user_info.location %}
+<p>Location: {{ graphs_user_info.location }}</p>
+{% endif %}
+{% if graphs_user_info.birthdate %}
+<p>Birth Date: {{ graphs_user_info.birthdate }}</p>
+{% endif %}
+
+{% endblock %}

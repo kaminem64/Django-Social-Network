@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div style="float: right; background-color: #EAEAEA; padding: 15px; margin: 10px; width: 400px;">
+{% if graphs_user_info.is_authenticated %}
+<div style="float: right"><a href="/solugle/profile/edit/">Edit</a></div>
+<b>My Profile</b>
+{% else %}
+<b>{{graphs_user_info.first_name}} {{graphs_user_info.last_name}} Profile</b>
+{% endif %}
+
+<hr>
+<div style="background-color: #FFF; width:150px; padding-left: 5px;">
+<p>Profile Picture</p>
+<p><a href="/media/profiles/pictures/{{ graphs_user_info.profile_pic }}"><img src="/media/profiles/pictures/{{ graphs_user_info.profile_pic }}" width="150px" border=0></a></p>
+</div>
+<p>Username: {{ graphs_user_info.username }}</p>
+<p>First Name: {{ graphs_user_info.first_name|capfirst }}</p>
+<p>Last Name: {{ graphs_user_info.last_name|capfirst }}</p>
+<p>Email Address: {{ graphs_user_info.email }}</p>
+<p>Website: {{ graphs_user_info.website }}</p>
+<p>Location: {{ graphs_user_info.location }}</p>
+<p>Birth Date: {{ graphs_user_info.birthdate }}</p>
+</div>
+
+{% if graphs_user_info.is_authenticated %}
+{% for id, solution in graphs_user_info.useful_voted_solutions %}
+<div>
+<a href="/solutions/view/{{ id }}/">{{ solution }}</a>
+</div>
+{% endfor %}
+Totlal Useful solutions you have voted for: {{ graphs_user_info.useful_voted_solutions_count }}
+{% endif %}
+
+<p>Viewing Score: {{graphs_user_info.viewer_score}}</p>
+<p>Criticizing Score: {{graphs_user_info.critic_score}}</p>
+<p>Author Score: {{graphs_user_info.author_score}}</p>
+<p>Total Score: {{ graphs_user_info.total_score }}</p>
+<p>Level: {{graphs_user_info.level}}</p>
+{% endblock %}

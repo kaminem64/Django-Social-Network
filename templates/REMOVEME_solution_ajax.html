@@ -1,0 +1,27 @@
+{% block solution_item %}
+{% load truncatechars %}
+<hr />
+<div style="padding: 10px">
+<div style="float:right">Added: <span id="dateadded" class="rel" title="{{ solution.datetime_added }}">{{ solution.datetime_added|timesince }} ago</span></div>
+<div style="font-size: 9px;">Category: <a href="/categories/{{solution.category|urlencode}}">{{ solution.category }}</a> | <b>Viewed:</b> {{ solution.viewed }}</div>
+<div style="clear: both"></div>
+<div style="background: #EAEAEA; padding: 10px 5px 10px 5px; margin-bottom: 2px;"><b>Problem:</b> <a href="/solutions/view/{{ solution.id }}/">{{ solution.problem|safe }}</a></div>
+<div style="background: #EAEAEA; padding: 10px 5px 10px 5px; margin-bottom: 2px;"><b>Problem Description:</b> {{ solution.problem_desc|striptags|truncatechars:'300' }}</div>
+<div style="background: #EAEAEA; padding: 10px 5px 10px 5px; margin-bottom: 2px;"><b>Solution:</b> {{ solution.solution|striptags|truncatechars:'300' }}</div>
+{% if solution.tags %}<div class="tag_nob">Tags: {% for tag in solution.tags %}<a class="tag" href="/tags/{{tag|urlencode}}">{{ tag|safe }}</a> {% endfor %}</div>{% endif %}
+
+<div style="float:right"><a id="view_solution" href="/solutions/view/{{ solution.id }}/">view solution</a></div>
+{% if graphs_user_info.is_page_owner %}
+<div style="float:right"><a id="edit_solution" href="/solutions/edit/{{ solution.id }}/">edit</a>|</div>
+<div style="float:right">
+<form action="/rm_solution/" method="post">{% csrf_token %}
+  <input type="hidden" name="toRM" value="{{ solution.id }}" />
+  <input type="submit" value="delete" id="delete_solution" class="delete_solution" />
+</form>
+</div>
+
+{% endif %}
+<span class="useful_solu">Useful votes got: {{ solution.useful_count }}</span> | <span class="unuseful_solu">Useful votes got: {{ solution.unuseful_count }}</span>
+</div>
+{% endblock %}
+

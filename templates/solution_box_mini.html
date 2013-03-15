@@ -1,0 +1,22 @@
+<div class="p_solbox">
+<div style="float:right">Added: <span id="dateadded" class="rel" title="{{ solution.datetime_added }}">{{ solution.datetime_added_since }} ago</span></div>
+<div style="font-size: 9px;">Category: <a href="/categories/{{solution.category|urlencode}}" class="bidi_text">{{ solution.category }}</a> | <b>Viewed:</b> {{ solution.viewed }}</div>
+<div style="clear: both"></div>
+<div class="problem_solbox"><b>Problem:</b>&nbsp;<a href="/solutions/view/{{ solution.id }}/" class="bidi_text">{{ solution.problem }}</a></div>
+{% if solution.problem_desc %}<div class="problem_desc_solbox"><b>Problem Description:</b><p id="problem_desc" class="bidi_text">{{ solution.problem_desc }}</p></div>{% endif %}
+<div class="solution_solbox"><b>Solution:</b><p id="solution" class="bidi_text">{{ solution.solution }}</p></div>
+{% if solution.tags %}<div class="tag_nob">Tags: {% for tag in solution.tags %}<a class="tag bidi_text" href="/tags/{{tag|urlencode}}">{{ tag|safe }}</a>&nbsp; {% endfor %}</div>{% endif %}
+
+<div style="float:right"><a id="view_solution" href="/solutions/view/{{ solution.id }}/">view solution</a></div>
+{% if graphs_user_info.is_page_owner %}
+<div style="float:right"><a id="edit_solution" href="/solutions/edit/{{ solution.id }}/">edit</a>|</div>
+<div style="float:right">
+<form action="/rm_solution/" method="post">{% csrf_token %}
+  <input type="hidden" name="toRM" value="{{ solution.id }}" />
+  <input type="submit" value="delete" id="delete_solution" class="delete_solution" />
+</form>
+</div>
+
+{% endif %}
+<span id="sol_accept_rate_t" class="accept_rate" title="{{ solution.sol_accept_rate }}">Accept rate: <span id="sol_accept_rate">{{ solution.sol_accept_rate }}</span>%</span>
+</div>

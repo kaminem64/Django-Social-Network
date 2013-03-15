@@ -1,0 +1,109 @@
+{% extends "2col.html" %}
+
+{% block title %}Tags List{% endblock %}
+
+{% block topdiv %}
+
+<h1>Tags</h1>
+<div>Total Tags available: {{ table_list_len }}</div>
+
+{% if page_bar_mid|length != 1 %}
+<p>
+{% if previous_page %}
+<span class="p02500"><a href="/tags/?page_no=1&per_page={{per_page_alloc}}">First</a></span>
+<span class="p0505"><a href="/tags/?page_no={{previous_page}}&per_page={{per_page_alloc}}">Previous</a></span>
+{% endif %}
+<span class="page_no_container">
+{% if page_bar_left %}
+<span class="page_bar_left"><a href="/tags/?page_no={{page_bar_left}}&per_page={{per_page_alloc}}">{{page_bar_left}}</a> ...</span> 
+{% endif %}
+
+{% for page in page_bar_mid %}
+{% if page == current_page %}
+<a class="page_no current_page_no" href="/tags/?page_no={{page}}&per_page={{per_page_alloc}}">{{page}}</a>
+{% else %}
+<a class="page_no" href="/tags/?page_no={{page}}&per_page={{per_page_alloc}}">{{page}}</a>
+{% endif %}
+{% endfor %}
+
+{% if page_bar_right %}
+<span class="p05015"> ... <a href="/tags/?page_no={{page_bar_right}}&per_page={{per_page_alloc}}">{{page_bar_right}}</a></span>
+{% endif %}
+</span>
+{% if next_page %}
+<span class="p0505"><a href="/tags/?page_no={{next_page}}&per_page={{per_page_alloc}}">Next</a></span>
+<span class="p00025"><a href="/tags/?page_no={{total_pages|length}}&per_page={{per_page_alloc}}">Last</a></span>
+{% endif %}
+</p>
+{% endif %}
+{% if total_pages|length > 1 or table_list_len >= default_per_no %}
+<div>Items per page: 
+<span class="page_no_container">
+<a class="page_no {% if per_page_alloc == default_per_no %}current_page_no{% endif %}" href="/tags/?page_no=1&per_page={{default_per_no}}">{{default_per_no}}</a>
+<a class="page_no {% if per_page_alloc == 40 %}current_page_no{% endif %}" href="/tags/?page_no=1&per_page=40">40</a>
+<a class="page_no {% if per_page_alloc == 100 %}current_page_no{% endif %}" href="/tags/?page_no=1&per_page=100">100</a>
+</span>
+</div>
+{% endif %}
+
+
+{% endblock %}  
+
+{% block leftcol %}
+<div id="tag_list">
+
+<table>
+{% for tag in table_list %}
+<tr>
+<td style="padding:10px; text-align:right;">{{ first_link_no|add:forloop.counter }}</td><td><a class="tag" href="/tags/{{ tag.name|urlencode }}/">{{ tag.name }}</a> X {{ tag.used_no }}</td>
+</tr>
+{% endfor %}
+</table>
+
+
+
+<br />
+{% if total_pages|length > 1 or table_list_len >= default_per_no %}
+<div>Items per page: 
+<span class="page_no_container">
+<a class="page_no {% if per_page_alloc == default_per_no %}current_page_no{% endif %}" href="/tags/?page_no=1&per_page={{default_per_no}}">{{default_per_no}}</a>
+<a class="page_no {% if per_page_alloc == 40 %}current_page_no{% endif %}" href="/tags/?page_no=1&per_page=40">40</a>
+<a class="page_no {% if per_page_alloc == 100 %}current_page_no{% endif %}" href="/tags/?page_no=1&per_page=100">100</a>
+</span>
+</div>
+{% endif %}
+
+{% if page_bar_mid|length != 1 %}
+<p>
+{% if previous_page %}
+<span class="p02500"><a href="/tags/?page_no=1&per_page={{per_page_alloc}}">First</a></span>
+<span class="p0505"><a href="/tags/?page_no={{previous_page}}&per_page={{per_page_alloc}}">Previous</a></span>
+{% endif %}
+<span class="page_no_container">
+{% if page_bar_left %}
+<span class="page_bar_left"><a href="/tags/?page_no={{page_bar_left}}&per_page={{per_page_alloc}}">{{page_bar_left}}</a> ...</span> 
+{% endif %}
+
+{% for page in page_bar_mid %}
+{% if page == current_page %}
+<a class="page_no current_page_no" href="/tags/?page_no={{page}}&per_page={{per_page_alloc}}">{{page}}</a>
+{% else %}
+<a class="page_no" href="/tags/?page_no={{page}}&per_page={{per_page_alloc}}">{{page}}</a>
+{% endif %}
+{% endfor %}
+
+{% if page_bar_right %}
+<span class="p05015"> ... <a href="/tags/?page_no={{page_bar_right}}&per_page={{per_page_alloc}}">{{page_bar_right}}</a></span>
+{% endif %}
+</span>
+{% if next_page %}
+<span class="p0505"><a href="/tags/?page_no={{next_page}}&per_page={{per_page_alloc}}">Next</a></span>
+<span class="p00025"><a href="/tags/?page_no={{total_pages|length}}&per_page={{per_page_alloc}}">Last</a></span>
+{% endif %}
+</p>
+{% endif %}
+
+
+
+</div>
+{% endblock %}

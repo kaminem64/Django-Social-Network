@@ -1,0 +1,42 @@
+{% extends "profile_3col.html" %}
+
+{% block profile_title %}
+Favorites
+{% endblock %}
+
+{% block profile_content %}
+
+{% if graphs_user_info.is_page_owner %}
+
+Totlal solutions you have voted for: {{ graphs_user_info.voted_solutions_count }}
+<hr />
+{% if graphs_user_info.voted_solutions %}
+{% for solution in graphs_user_info.voted_solutions %}
+<div style="float:right; padding: 5px 5px 2px 2px;">your vote: <span class="accept_rate" title="{{ solution.vote }}">{{ solution.vote }}% accepted</span></div>
+<div style="background: #EAEAEA; padding: 15px 10px 10px 5px; margin-bottom: 10px;">
+<a href="/solutions/view/{{ solution.id }}/" class="bidi_text">{{ solution.problem }}</a>
+</div>
+{% endfor %}
+{% else %}
+<h3>You haven't voted yet!</h3>
+<p>Be a part of society</p>
+<p><a href="/solutions/view/">Surf solutions</a>, Vote and earn Experience.</p>
+{% endif %}
+
+{% else %}
+Totlal solutions {{ graphs_user_info.first_name|capfirst }} {{ graphs_user_info.last_name|capfirst }} has voted for: {{ graphs_user_info.voted_solutions_count }}
+<hr />
+{% if graphs_user_info.voted_solutions %}
+{% for solution in graphs_user_info.voted_solutions %}
+<div style="float:right; padding: 5px 5px 2px 2px;">user vote: <span class="accept_rate" title="{{ solution.vote }}">{{ solution.vote }}% accepted</span></div>
+<div style="background: #EAEAEA; padding: 15px 10px 10px 5px; margin-bottom: 10px;">
+<a href="/solutions/view/{{ solution.id }}/" class="bidi_text">{{ solution.problem }}</a>
+</div>
+{% endfor %}
+{% else %}
+<h3>No Votes</h3>
+{% endif %}
+{% endif %}
+
+
+{% endblock %}

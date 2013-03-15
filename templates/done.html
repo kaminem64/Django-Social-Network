@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Registration{% endblock %}
+
+{% block content %}
+<div id="login" style="width:450px;">
+
+<h3>Registration Done!</h3>
+<table>
+  <tbody>
+    <tr>
+    <td>Username:</td><td>{{register.username}}</td>
+    </tr>
+    <tr>
+    <td>Email Address:</td><td>{{register.emailaddress}}</td>
+    </tr>
+    <tr>
+    <td>First Name:</td><td>{{register.firstname}}</td>
+    </tr>
+    <tr>
+    <td>Last Name:</td><td>{{register.lastname}}</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>You are registered and automatically logged into your account</p>
+<p><a href="/profile/{{register.username}}/">Go to My Profile</a></p>
+
+</div>
+{% endblock %}

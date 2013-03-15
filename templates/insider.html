@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+
+<div id="insider_left_bar" style="float: left; width:200px;">
+<ul>
+{% if title == 'About Us' %}
+<li class="selected"><a href="/aboutus/">{{title}}</a></li>
+{%else%}
+<li><a href="/aboutus/">About Us</a></li>
+{%endif%}
+{% if title == 'Developers' %}
+<li class="selected"><a href="/developers/">{{title}}</a></li>
+{%else%}
+<li><a href="/developers/">Developers</a></li>
+{%endif%}
+{% if title == 'Privacy Policy' %}
+<li class="selected"><a href="/privacypolicy/">{{title}}</a></li>
+{%else%}
+<li><a href="/privacypolicy/">Privacy Policy</a></li>
+{%endif%}
+{% if title == 'Terms of Service' %}
+<li class="selected"><a href="/termsofservice/">{{title}}</a></li>
+{%else%}
+<li><a href="/termsofservice/">Terms of Service</a></li>
+{%endif%}
+{% if title == 'Copyright Policy' %}
+<li class="selected"><a href="/licenses/">{{title}}</a></li>
+{%else%}
+<li><a href="/licenses/">Copyright Policy</a></li>
+{%endif%}
+{% if title == 'Contact Us' %}
+<li class="selected"><a href="/contactus/">{{title}}</a></li>
+{%else%}
+<li><a href="/contactus/">Contact Us</a></li>
+{%endif%}
+</div>
+
+<div id="spacer" style="float: left; min-width:20px; min-height:1px;"></div>
+<div style="float: left; width:700px;">
+{% block content_right %}
+
+{% endblock %}
+</div>
+
+{% endblock %}
+

@@ -1,0 +1,45 @@
+{% extends "insider.html" %}
+{% block content_right %}
+<div id="contact_us">
+<h1>Contact Us</h1>
+{% if not done %}
+<p>We would like to hear from you so don’t hestitate to get in touch with us.</p>
+<p>Please use the following form to contact us.</p>
+<form action="" method="post" style="font-color:#000; font-weight: bold">
+{% csrf_token %}
+<div class="support_contactus_fieldset">
+
+{% if form.errors %}<p id="error">Please complete the form</p>{% endif %}
+
+{% if request.user.is_authenticated %}
+<p style="font-weight: normal">Fullname: {{request.user.first_name}} {{request.user.last_name}}</p>
+<p style="font-weight: normal">Email Address: {{request.user.email}}</p>
+<div><span id="error">{% for error in form.subject.errors %}{{ error }}{% endfor %}</span>{% if not form.subject.errors %}*{% endif %} {{ form.subject.label }}: </div><div>{{ form.subject }}</div>
+<div><span id="error">{% for error in form.message.errors %}{{ error }}{% endfor %}</span>{% if not form.message.errors %}*{% endif %} {{ form.message.label }}: </div><div>{{ form.message }}</div>
+
+{% else %}
+
+<div><span id="error">{% for error in form.fullname.errors %}{{ error }}{% endfor %}</span>{% if not form.fullname.errors %}*{% endif %} {{ form.fullname.label }}: </div><div>{{ form.fullname }}</div>
+
+<div><span id="error">{% for error in form.emailaddress.errors %}{{ error }}{% endfor %}</span>{% if not form.emailaddress.errors %}*{% endif %} {{ form.emailaddress.label }}: </div><div>{{ form.emailaddress }}</div>
+
+<div><span id="error">{% for error in form.subject.errors %}{{ error }}{% endfor %}</span>{% if not form.subject.errors %}*{% endif %} {{ form.subject.label }}: </div><div>{{ form.subject }}</div>
+
+<div><span id="error">{% for error in form.message.errors %}{{ error }}{% endfor %}</span>{% if not form.message.errors %}*{% endif %} {{ form.message.label }}: </div><div>{{ form.message }}</div>
+
+{% endif %}
+
+<input type="submit" value="Send">
+
+</div>
+</form>
+
+{% else %}
+<br />
+<p style="font-size:16px; color:green;">Thanks for your message!</p>
+<p>We'll do everything we can to respond to your needs as quickly as possible.</p>
+<br />
+{% endif %}
+</div>
+
+{% endblock %}

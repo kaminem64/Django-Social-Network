@@ -1,0 +1,37 @@
+{% extends "settings.html" %}
+
+{% block title %}Privacy Settings{% endblock %}
+
+
+{% block form_content %}
+<b>Privacy Settings</b>
+{% if saved %}
+<div><span style="color: green;">Changes have been saved</span></div>
+{% endif %}
+<hr>
+<p>Profile permission settings are in <a href="/profile/edit/">Profile Settings</a> section.</p>
+<table>
+  <tbody>
+    <tr>
+      <td><label for="id_view_desk">Who can see your updates and posts by others on your desk?</label></td>
+      <td>{{ form.view_desk_perm }}</td>
+      <td><div id="error">{% for error in form.view_desk_perm.errors %}{{ error }}{% endfor %}</div></td>
+    </tr>
+    <tr>
+      <td><label for="id_post_desk">Who can post on your desk?</label></td>
+      <td>{{ form.post_desk_perm }}</td>
+      <td><div id="error">{% for error in form.post_desk_perm.errors %}{{ error }}{% endfor %}</div></td>
+    </tr>
+    <tr>
+      <td><label for="id_view_comment_solution">Who can see others comments on your solutions?</label></td>
+      <td>{{ form.view_comment_solution_perm }}</td>
+      <td><div id="error">{% for error in form.view_comment_solution_perm.errors %}{{ error }}{% endfor %}</div></td>
+    </tr>
+    <tr>
+      <td><label for="id_add_comment_solution">Who can comment on your solutions?</label></td>
+      <td>{{ form.add_comment_solution_perm }}</td>
+      <td><div id="error">{% for error in form.add_comment_solution_perm.errors %}{{ error }}{% endfor %}</div></td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}

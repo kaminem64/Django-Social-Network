@@ -1,0 +1,39 @@
+{% extends "profile_3col.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block profile_title %}
+Following / Followers
+{% endblock %}
+
+{% block profile_content %}
+
+<fieldset style="border: 1px #EAEAEA solid;" >
+<legend>Following</legend>
+{% if user_likes_graph.items %}
+{% for username, user_like_graph in user_likes_graph.items %}
+<div style="line-height:50px;">
+<a href="/profile/{{username}}/"><img class="follow" src="/thumbs/40x40/{{ user_like_graph.profile_pic }}" border=0></a>
+<a href="/profile/{{username}}/">{{user_like_graph.first_name|capfirst}} {{user_like_graph.last_name|capfirst}}</a>
+</div>
+{% endfor %}
+{% else %}
+<h3>No Following</h3>
+{% endif %}
+</fieldset>
+<br />
+<fieldset style="border: 1px #EAEAEA solid;">
+<legend>Followers</legend>
+{% if user_likers_graph.items %}
+{% for username, user_liker_graph in user_likers_graph.items %}
+<div style="line-height:50px;">
+<a href="/profile/{{username}}/"><img class="likeslikers" src="/thumbs/40x40/{{ user_liker_graph.profile_pic }}" border=0></a>
+<a href="/profile/{{username}}/">{{user_liker_graph.first_name|capfirst}} {{user_liker_graph.last_name|capfirst}}</a>
+</div>
+{% endfor %}
+{% else %}
+<h3>No Followers</h3>
+{% endif %}
+
+</fieldset>
+{% endblock %}

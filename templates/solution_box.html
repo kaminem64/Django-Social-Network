@@ -1,0 +1,18 @@
+<fieldset style="border: #C1C1C1 1px solid; background: #FAFAFA; margin-bottom:10px; padding: 10px" >
+{% if first_link_no != None %}<legend>{{ first_link_no|add:forloop.counter }}</legend>{% endif %}
+
+<div style="float:right; margin:-10px 0px 5px 0px;">Added: <span id="dateadded" class="rel" title="{{ solution.datetime_added }}">{{ solution.datetime_added_since }} ago</span></div>
+<div style="clear:right;"></div>
+<div style="float:right"><a id="view_solution" href="/solutions/view/{{ solution.id }}/">view solution</a></div>
+
+<div style="font-size:16px"><b>Problem: </b><a href="/solutions/view/{{ solution.id }}/" class="bidi_text">{{ solution.problem }}</a></div><br />
+{% if solution.problem_desc %}<div id="problem_desc" class="problem_desc_solbox"><b>Problem Description:</b><p id="problem_desc" class="bidi_text">{{ solution.problem_desc }}</p></div>{% endif %}
+<div id="solution" class="solution_solbox"><b>Solution:</b><p id="solution" class="bidi_text">{{ solution.solution }}</p></div>
+<div class="tag_nob">Category:<a class="tag bidi_text" href="/categories/{{solution.category|urlencode}}">{{ solution.category }}</a></div>
+<div style="float:right">
+<b>Source: </b><a href="{{ solution.source.url }}">{{ solution.source.source }}</a><br />
+<b>Viewed:</b> {{ solution.viewed }}<br />
+<span id="sol_accept_rate_t" class="accept_rate" title="{{ solution.sol_accept_rate }}">Accept rate: <span id="sol_accept_rate">{{ solution.sol_accept_rate }}</span>%</span>
+</div>
+{% if solution.tags %}<div class="tag_nob">Tags: {% for tag in solution.tags %}<a class="tag bidi_text" href="/tags/{{tag|urlencode}}/">{{ tag|safe }}</a>&nbsp; {% endfor %}</div>{% endif %}
+</fieldset>

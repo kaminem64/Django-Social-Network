@@ -1,0 +1,16 @@
+<fieldset id="comment_box_{{comment.id}}" class="shadow" style="border: 1px #EAEAEA solid; background-color: #FFF; padding:0px 10px 0px 10px;">
+<p>
+<div style="float: right;"><span title="{{comment.datetime}}">{{comment.datetime|timesince}}</span> ago</div>
+<div style="float: left; margin: 0px 10px 10px 0px;"><a href="/profile/{{comment.graphs_user_info.username}}/"><img src="/thumbs/40x40/{{ comment.graphs_user_info.profile_pic }}" border="0" /></a></div>
+<div><a href="/profile/{{comment.graphs_user_info.username}}/">{{comment.graphs_user_info.first_name}} {{comment.graphs_user_info.last_name}}</a>:</div>
+<p style="background-color: #EAEAEA; padding:5px; margin-left: 50px;">{{comment.message}}</p>
+{% if comment.graphs_user_info.username == request.user.username %}
+<div style="float: right"><form action="/rm_comment/" method="post" >{% csrf_token %}
+  <input type="hidden" name="toRM" value="{{ comment.id }}" />
+  <input type="submit" value="delete" id="delete_solution" class="delete_comment" />
+</form></div>
+{% endif %}
+<div style="clear:both;"></div>
+</p>
+</fieldset>
+

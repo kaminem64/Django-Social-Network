@@ -1,0 +1,7 @@
+<fieldset class="shadow" style="border: 1px #EAEAEA solid; padding:0px 10px 0px 10px; margin-bottom: 10px;">
+<p>
+<div style="float: right;"><span title="{{event.datetime}}">{{event.datetime|timesince}}</span> ago</div>
+<div style="clear:both;"></div>
+<div><a href="/profile/{{event.operator_username}}/">{{event.operator.first_name}} {{event.operator.last_name}}</a> added <a href="/solutions/view/{{event.operation_result_id}}/">a new solution</a>.</div>
+</p>
+</fieldset>

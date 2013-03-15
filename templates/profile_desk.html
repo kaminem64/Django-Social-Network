@@ -1,0 +1,82 @@
+{% extends "profile_3col.html" %}
+
+{% block profile_title %}
+Desk
+{% endblock %}
+
+
+{% block script_ext %}
+<script type="text/javascript">
+if ("{{ last_event }}" == "None"){
+  last_event = "{{ last_event }}";
+}
+else{
+  last_event = {{ last_event }};
+}
+firstever_event = {{ firstever_event }};
+page_owner = "{{graphs_user_info.username}}";
+page_title = "{{ title }}";
+</script>
+{% endblock %}
+
+
+{% block profile_content %}
+{% if request.user.is_authenticated %}
+{% if post_desk %}
+<div id="home-tabs">
+	<ul>
+		<li><a href="#tabs-1">Post to desk</a></li>
+	</ul>
+<div style="border: 1px #EAEAEA solid">
+
+<div id="tabs-1">
+
+<form action="" method="post" style="font-color:#000; font-weight: bold">
+{% csrf_token %}
+
+<fieldset style="border: 1px #FFF solid; padding:4px 6px 4px 4px;">
+<p>
+
+<div><span id="error">{% for error in form.message.errors %}{{ error }}{% endfor %}</span>{% if not form.message.errors %}*{% endif %} {{ form.message.label }}: </div><div>{{ form.message }}</div>
+
+<input type="submit" value="Post" style="float: right;">
+
+<input type="hidden" name="redirectTo" value="{{ redirectTo|escape }}" />
+</p>
+</fieldset>
+
+</form>
+</div>
+
+
+</div>
+</div>
+{% else %}
+<div style="background: #EAEAEA; padding: 25px;"><div id="profile_post_permission" style="line-height: 24px; background: url({{STATIC_URL}}/icons/lock.png) no-repeat 0px 0px; padding-left: 25px;">You don't have permission to post on {{graphs_user_info.first_name}} {{graphs_user_info.last_name}}'s desk</div></div>
+{% endif %}
+
+{% else %}
+<div style="background: #EAEAEA; padding: 25px;"><div id="profile_post_permission" style="line-height: 24px; background: url({{STATIC_URL}}/icons/lock.png) no-repeat 0px 0px; padding-left: 25px;">You don't have permission to post on {{graphs_user_info.first_name}} {{graphs_user_info.last_name}}'s desk</div></div>
+{% endif %}
+<div style="clear: both; margin-bottom: 10px;"></div>
+
+<br />
+
+<div id="afterEvents" style="margin-bottom: 20px;"></div>
+
+{% if post_desk %}
+<div id="profile_no_posts_container" style="display: none; background: #EAEAEA; padding: 25px;"><div id="profile_no_posts" style="line-height: 24px; background: url({{STATIC_URL}}/icons/book.png) no-repeat 0px 0px; padding-left: 25px;">There's no posts on the desk.</div></div>
+{% endif %}
+<button id="more_profile" style="width: 100%;">more</button>
+
+
+{% include "javascript_temps.html" %}
+
+
+{% endblock %}
+
+
+
+
+
+

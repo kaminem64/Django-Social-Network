@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<div class="topdiv" style="margin-bottom: 20px;">
+{% block topdiv %}
+{% endblock %}
+</div>
+
+<div class="leftcolumn">
+{% block leftcol %}
+{% endblock %}
+</div>
+
+<div class="midcolumn">
+{% block midcol %}
+{% endblock %}
+</div>
+
+<div class="rightcolumn">
+{% block rightcol %}
+
+{% block beforeads %}
+{% endblock %}
+
+<div style="padding: 5px; margin-top:5px;">
+<center>
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-8637683020168924";
+/* Side Bar - Long */
+google_ad_slot = "6387300074";
+google_ad_width = 160;
+google_ad_height = 600;
+//-->
+</script>
+<!--<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>-->
+</center>
+</div>
+{% block afterads %}
+{% endblock %}
+
+{% endblock %}
+</div>
+
+
+
+{% endblock %}

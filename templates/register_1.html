@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Registration{% endblock %}
+
+{% block content %}
+<div id="login" style="width:450px;">
+
+  <h1>Registration</h1>
+<script type="text/javascript">
+ var RecaptchaOptions = {
+    theme : 'clean'
+ };
+ </script>
+<form action="." method="post">{% csrf_token %}
+{{ wizard.management_form }}
+
+{{ html_captcha|safe }}
+{% if wizard.form.errors %}
+ <p id="error">Please enter the CAPTCHA</p>
+{% endif %}
+<p>
+{{ wizard.form.terms_check }}&nbsp; 
+<label for="id_terms_check">I have read and accept <a href="/privacypolicy/" target="_blank">Privacy Policy</a> and <a href="/termsofservice/" target="_blank">Terms of Service.</a></label>
+<p><div id="error">{% for error in wizard.form.terms_check.errors %}{{ error }}{% endfor %}</div></p>
+</p>
+<input type="hidden" name="{{ step_field }}" value="{{ step0 }}" />
+{{ previous_fields|safe }}
+<input type="submit" value="Sign Up">
+</form>
+</div>
+{% endblock %}

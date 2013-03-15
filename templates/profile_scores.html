@@ -1,0 +1,21 @@
+{% extends "profile_3col.html" %}
+
+{% block profile_title %}
+Scores
+{% endblock %}
+
+{% block profile_content %}
+<p style="font-size: 16px;">Level: {{graphs_user_info.level}}</p>
+<p style="font-size: 14px;">Main Attribute: {{ graphs_user_info.main_attr }}</p>
+<div id="user_accept_rate" class="accept_rate" title="{{ graphs_user_info.accept_rate }}">
+Accept rate: <span id="accept_rate">{{ graphs_user_info.accept_rate }}</span>%
+</div>
+<p>Total Score: {{ graphs_user_info.total_score }}</p>
+<p>Viewing Score: {{graphs_user_info.viewer_score}}</p>
+<p>Criticizing Score: {{graphs_user_info.critic_score}}</p>
+<p>Developing Score: {{graphs_user_info.develop_score}}</p>
+
+
+
+
+{% endblock %}

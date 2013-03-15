@@ -1,0 +1,8 @@
+<fieldset class="shadow" style="border: 1px #EAEAEA solid; background-color: #EAEAEA; padding:0px 10px 0px 10px; margin-bottom: 10px;">
+<p>
+<div style="float: right;"><span title="{{comment.datetime}}">{{comment.datetime|timesince}}</span> ago</div>
+<div style="clear:both;"></div>
+<div style="float: left; margin: 0px 10px 10px 0px;"><a href="/profile/{{comment.graphs_user_info.username}}/"><img src="/thumbs/40x40/{{ comment.graphs_user_info.profile_pic }}" border="0" /></a></div>
+<div><a href="/profile/{{comment.graphs_user_info.username}}/">{{comment.graphs_user_info.first_name}} {{comment.graphs_user_info.last_name}}</a>: {{comment.message}}</div>
+</p>
+</fieldset>

@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+{% block script %}
+{% if not request.user.is_authenticated %}
+<meta name="google-site-verification" content="Cl4P9KhI8mR0hZ35ZWJsMLkNikW8cRLrOim2HAbr_dA" />
+{% else %}
+<script src="{{STATIC_URL}}/javascript/tag-it.js" type="text/javascript" charset="utf-8"></script>
+<link href="{{STATIC_URL}}/css/jquery.tagit.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="{{STATIC_URL}}/ckeditor/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}/ckeditor/ckeditor/adapters/jquery.js"></script>
+<script type="text/javascript">
+last_event = {{ last_event }};
+firstever_event = {{ firstever_event }};
+</script>
+{% endif %}
+{% endblock %}
+{% block toprightmenu %}
+  <form action="/login/" method="post">
+  {% csrf_token %}
+      <label for="id_username">{{ form_login.username.label }}:</label>
+      {{ form_login.username }}
+&nbsp;
+      <label for="id_password">{{ form_login.password.label }}:</label>
+      {{ form_login.password }}
+      <input type="submit" value="Login" style="font-size: 11px; padding:2px;bottom:2px;">
+  </form>
+{% endblock %}
+{% block content %}
+
+
+{% if not request.user.is_authenticated %}
+<div style="float:right;">
+<fieldset style="border: 1px #bfc6d1 solid;" >
+<legend>Quick Registration</legend>
+<form action="/register/" method="post">
+{% csrf_token %}
+<input type="hidden" name="register_wizard-current_step" value="0" id="id_register_wizard-current_step" />
+<table>
+  <tbody>
+    <tr>
+      <td><label for="id_username">{{ form_reg.username.label }}:</label></td>
+      <td>{{ form_reg.username }}</td>
+    </tr>
+    <tr>
+      <td><label for="id_password">{{ form_reg.password.label }}:</label></td>
+      <td>{{ form_reg.password }}</td>
+    </tr>
+    <tr>
+      <td><label for="id_cpassword">{{ form_reg.cpassword.label }}:</label></td>
+      <td>{{ form_reg.cpassword }}</td>
+    </tr>
+    <tr>
+      <td><label for="id_emailaddress">{{ form_reg.emailaddress.label }}:</label></td>
+      <td>{{ form_reg.emailaddress }}</td>
+    </tr>
+    <tr>
+      <td><label for="id_firstname">{{ form_reg.firstname.label }}:</label></td>
+      <td>{{ form_reg.firstname }}</td>
+    </tr>
+    <tr>
+      <td><label for="id_lastname">{{ form_reg.lastname.label }}:</label></td>
+      <td>{{ form_reg.lastname }}</td>
+    </tr>
+  </tbody>
+</table>
+<input type="submit" value="Sign Up">
+</form>
+</fieldset>
+</div>
+
+{% endif %}
+
+
+<div>
+<div style="float:left; width:20%;">
+<div style="margin: 30px 0px 40px; text-align: center;"><a href="/"><img src="{{STATIC_URL}}/icons/solutioner.png" border="0" width="100%"></a></div>
+<div class="ui-widget" id="home_left_bar" style="margin:0; margin-bottom: 20px;">
+<ul>
+<hr />
+<li id="c_list_sols"><a id="c_list_solutions" href="/solutions/view/">Complete list of Solutions</a></li><hr />
+<li id="c_list_tags"><a href="/tags/">Find the Solution by Tag name</a></li><hr />
+</ul>
+</div>
+
+{% if latestsols %}
+<div class="ui-widget" id="home_left_bar" style="margin:0; margin-bottom: 20px;">
+<div class="ui-widget-header" style="padding: 5px 10px 5px 10px">Latest solutions</div>
+<div>
+<ul>
+{% for latestsol in latestsols %}
+<li><a href="/solutions/view/{{latestsol.id}}/" class="bidi_text">{{latestsol.problem|safe}}</a></li><hr />
+{% endfor %}
+</ul>
+</div>
+
+</div>
+
+{% endif %}
+
+{% if mostpops %}
+<div class="ui-widget" id="home_left_bar" style="margin:0; margin-bottom: 20px;">
+<div class="ui-widget-header" style="padding: 5px 10px 5px 10px">Most popular solutions</div>
+<div>
+<ul>
+{% for mostpop in mostpops %}
+<li>
+<li><a href="/solutions/view/{{mostpop.id}}/" class="bidi_text">{{mostpop.problem|safe}}</a></li><hr />
+</li>
+{% endfor %}
+</ul>
+</div>
+</div>
+{% endif %}
+</div>
+
+<div style="float:left; width:2%; min-height:1px;"></div>
+{% if request.user.is_authenticated %}
+<div style="float:left;width:62%;" >
+
+<div id="home-tabs">
+	<ul>
+		<li><a href="#tabs-1">Add Solution</a></li>
+		<li><a href="#tabs-2">Post to desk</a></li>
+	</ul>
+<div style="border: 1px #bfc6d1 solid">
+<div id="tabs-1">
+<form action="/profile/{{request.user.username}}/solutions/" method="post" style="font-color:#000; font-weight: bold">
+{% csrf_token %}
+<fieldset style="border: 1px #FFF solid; padding:4px 6px 4px 4px;">
+<p>
+<div>* {{ form_add_solution.problem.label }}: </div><div>{{ form_add_solution.problem }}</div>
+
+<div id="problem_desc_form">
+<div>{{ form_add_solution.problem_desc.label }}: </div><div>{{ form_add_solution.problem_desc }}</div>
+</div>
+<button id="problem_desc_form_toggle" style="float: right; margin-top: 5px;">add description</button>
+<div style="clear: both;"></div>
+<div>* {{ form_add_solution.solution.label }}: </div><div>{{ form_add_solution.solution }}</div>
+
+<div id="tags_form">
+<div>{{ form_add_solution.tags.label }}: </div><div>{{ form_add_solution.tags }}</div>
+<ul id="mytags"></ul>
+</div>
+<button id="tags_form_toggle" style="float: right;">add tags</button>
+<div style="clear: both;"></div>
+
+<div>{{ form_add_solution.category.label }}: </div>
+<input type="submit" value="Publish" style="float: right;">
+<div>{{ form_add_solution.category }}</div>
+
+<input type="hidden" name="redirectTo" value="{{ redirectTo|escape }}" />
+</p>
+</fieldset>
+</form>
+</div>
+
+<div id="tabs-2">
+<form action="/profile/{{request.user.username}}/desk/" method="post" style="font-color:#000; font-weight: bold">
+{% csrf_token %}
+
+<fieldset style="border: 1px #FFF solid; padding:4px 6px 4px 4px;">
+<p>
+<div>* {{ form_add_comment.message.label }}: </div><div>{{ form_add_comment.message }}</div>
+<input type="submit" value="Post" style="float: right;">
+<input type="hidden" name="redirectTo" value="{{ redirectTo|escape }}" />
+</p>
+</fieldset>
+
+</form>
+</div>
+
+</div>
+
+</div>
+
+
+
+<div style="clear: both; margin-bottom: 10px;"></div>
+<br />
+<div id="home-feed-tabs">
+	<ul>
+		<li><a href="#feed-tabs-1">News feed</a></li>
+  </ul>
+<div style="border-top: 1px #bfc6d1 solid; padding: 5px; padding-top:40px;">
+<div id="afterEvents" style="margin-bottom: 20px;"></div>
+<button id="more_home" style="width: 100%;">more</button>
+</div>
+</div>
+</div>
+{% endif %}
+
+
+</div>
+
+<div style="float:left; width:2%; min-height:1px;"></div>
+<div id="home_right" style="float:left;width:14%;" >
+<div style="height: 35px;" ></div>
+
+{% if request.user.is_authenticated %}
+<div id="follow_suggest_widget">
+<div class="ui-widget-header" style="padding: 5px 10px 5px 10px">Who to follow?<div style="float: right"><a id="follow_suggest_refresh" href="#"><img src="{{STATIC_URL}}/icons/refresh.png" height="15px;" border="0" /></a></div><div style="clear:both;"></div>
+</div>
+<div id="follow_suggest" class="ui-widget-content"  style="padding: 20px 10px 10px 10px"></div>
+</div>
+</div>
+{% endif %}
+
+
+<div style="clear: both"></div>
+
+
+{% include "javascript_temps.html" %}
+
+{% endblock %}

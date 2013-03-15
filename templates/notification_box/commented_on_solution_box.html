@@ -1,0 +1,7 @@
+<fieldset class="shadow" style="border: 1px #EAEAEA solid; padding:0px 10px 0px 10px; margin-bottom: 10px;">
+<p>
+<div style="float: right;"><span title="{{event.datetime}}">{{event.datetime}}</span></div>
+<div style="clear:both;"></div>
+<div><a href="/profile/{{event.operator.username}}/">{{event.operator.first_name}} {{event.operator.last_name}}</a> commented on {% if not event.operator.username == event.owner.username %}<a href="/profile/{{event.owner.username}}/">{{event.owner.first_name}} {{event.owner.last_name}}</a>'s{% else %}his/her{% endif %}&nbsp;<a href="/solutions/view/{{event.object_id}}/">solution</a>.</div>
+</p>
+</fieldset>

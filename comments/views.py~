@@ -1,0 +1,121 @@
+from django.shortcuts import render_to_response
+from django.http import HttpResponse, HttpResponseRedirect, Http404
+from solutioner.comments.models import Comment
+from solutioner.comments.forms import AddComment
+from django.http import HttpResponseRedirect
+from django.template import RequestContext
+from django.contrib.auth.decorators import login_required
+from solutioner.users.models import Ownership
+from solutioner.events.models import Event
+from django.utils import simplejson
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
+from solutioner.users.models import Ownership
+from solutioner.rbac.models import RBACRole, RBACOperation, RBACGenericPermission, get_user_roles
+from django.contrib.auth.models import User
+
+@login_required(login_url='/login/')
+def add_comment(request, object_inst, operation='add_comment', JSON=True):
+  if request.method =='POST':
+    form = AddComment(request.POST)
+    if form.is_valid():
+      posted = form.cleaned_data
+      
+      new_comment = Comment.objects.create_comment(operator=request.user, object_inst=object_inst, message=posted['message'] )
+      Ownership.objects.create_ownership(request.user, new_comment)
+      Event.objects.create_event(operator=request.user, object_inst=object_inst, operation=operation, operation_result=new_comment)
+
+      uncomplete = False
+      return uncomplete
+
+  else:
+    form = AddComment()
+  return form
+  
+  
+def get_comment_by_id(request, id_exact, operation='view_comment', JSON=True):
+  from solutioner.users.views import graphs_user
+  operator_user = request.user
+  try:
+    comment = Comment.objects.get(id__exact = id_exact)
+    graphs_user_info = graphs_user(request, comment.operator.username, JSON=False)
+    comment_datetime = '%s'%comment.datetime if JSON else comment.datetime
+    message_dict = {'not_allowed': False, 'id': comment.id, 'message': comment.message, 'datetime': comment_datetime, 'graphs_user_info': graphs_user_info}
+  except:
+    comment = None
+    message_dict = {'not_allowed': True}
+  if JSON = 'JSON_ready':
+    return message_dict
+  elif JSON:
+    return HttpResponse(simplejson.dumps(message_dict, sort_keys=True, indent=4), content_type = 'application/json')
+  else:
+    return message_dict
+
+
+
+def get_comment_by_id_perm(request, id_exact, operation='view_comment', JSON=True):
+  from solutioner.users.views import graphs_user
+  operator_user = request.user
+  try:
+    comment = Comment.objects.get(id__exact = id_exact)
+    try:
+      permission = RBACGenericPermission.objects.get_user_permission(comment.owner, comment.owner, operation, operator_user)
+    except:
+      permission = False
+    if not (permission or comment.operator == request.user):
+      comment = None
+      message_dict = {'not_allowed': True}
+    else:
+      graphs_user_info = graphs_user(request, comment.operator.username, JSON=False)
+      comment_datetime = '%s'%comment.datetime if JSON else comment.datetime
+      message_dict = {'not_allowed': False, 'id': comment.id, 'message': comment.message, 'datetime': comment_datetime, 'graphs_user_info': graphs_user_info}
+  except:
+    comment = None
+    message_dict = {'not_allowed': True}
+  if JSON:
+    return HttpResponse(simplejson.dumps(message_dict, sort_keys=True, indent=4), content_type = 'application/json')
+  else:
+    return message_dict
+
+def get_comment(request, owner, model, object_inst, operation, order_by='datetime', from_no_gt=0, limit=5, JSON=False, **kwargs):
+  from solutioner.users.views import graphs_user
+  filter_dict = {'id__gt': from_no_gt, 'is_deleted': False, 'owner_id': owner.id, 'owner_ct': ContentType.objects.get_for_model(owner), 'object_ct': ContentType.objects.get_for_model(object_inst), 'object_id': object_inst.id }
+  for key in kwargs:
+    if kwargs[key]:
+      filter_dict[key] = kwargs[key]
+  operator_user = request.user
+  try:
+    permission = RBACGenericPermission.objects.get_user_permission(owner, model, operation, operator_user)
+  except:
+    permission = False
+  if permission:
+    comments = Comment.objects.filter(**filter_dict).order_by(order_by)[:limit]
+  else:
+    filter_dict['operator_id'] = request.user.id
+    comments =  Comment.objects.filter(**filter_dict).order_by(order_by)[:limit]
+        
+  comments_list = []
+  for comment in comments:
+    graphs_user_info = graphs_user(request, comment.operator.username, JSON=False)
+    comment_datetime = '%s'%comment.datetime if JSON else comment.datetime
+    message_dict = {'id': comment.id, 'message': comment.message, 'datetime': comment_datetime, 'graphs_user_info': graphs_user_info}
+    comments_list.append(message_dict)
+  if JSON:
+    return HttpResponse(simplejson.dumps(comments_list, sort_keys=True, indent=4), content_type = 'application/json')
+  else:
+    return comments_list
+
+
+def desk_comments(request, user_username):
+  owner = User.objects.get(username=user_username)
+  model = User
+  object_inst = owner
+  operation = 'view_desk'
+  return get_comment(request, owner, model, object_inst, operation, order_by='-datetime', from_no=0, limit=5, JSON=True)
+
+
+
+
+
+
+

@@ -1,0 +1,14 @@
+<fieldset class="shadow" style="border: 1px #EAEAEA solid; background-color: #FFF; padding:0px 10px 0px 10px;">
+<p>
+<div style="float: right;"><span title="{{comment.datetime}}">{{comment.datetime|timesince}}</span> ago</div>
+<div style="float: left; margin: 0px 10px 10px 0px;"><a href="/profile/{{event.graphs_user_info.username}}/"><img src="/thumbs/40x40/{{ event.graphs_user_info.profile_pic }}" border="0" /></a></div>
+<div><a href="/profile/{{event.operator.username}}/">{{event.operator.first_name}} {{event.operator.last_name}}</a> commented on {% if not event.operator.username == event.owner.username %}<a href="/profile/{{event.owner.username}}/">{{event.owner.first_name}} {{event.owner.last_name}}</a>'s{% else %}his/her{% endif %}&nbsp;<a href="/profile/{{event.object.username}}/desk/">desk</a>:</div>
+<p style="background-color: #EAEAEA; padding:5px; margin-left: 50px;">{{comment.message}}</p>
+<div style="float: right"><form action="/rm_comment/" method="post" >{% csrf_token %}
+  <input type="hidden" name="toRM" value="{{ comment.id }}" />
+  <input type="submit" value="delete" id="delete_solution" class="delete_comment" />
+</form></div>
+<div style="clear:both;"></div>
+</p>
+</fieldset>
+

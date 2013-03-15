@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+
+<div class="leftcolumn">
+{% block leftcol %}
+{% endblock %}
+</div>
+
+<div class="midcolumn">
+{% block midcol %}
+{% endblock %}
+</div>
+
+<div class="rightcolumn">
+{% block rightcol %}
+
+{% block beforeads %}
+{% endblock %}
+
+<div style="border:#EAEAEA 1px solid; padding: 5px;">
+Ads by Google
+</div>
+{% block afterads %}
+{% endblock %}
+
+{% endblock %}
+</div>
+
+
+
+{% endblock %}

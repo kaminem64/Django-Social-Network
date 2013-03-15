@@ -1,0 +1,27 @@
+from django import forms
+from django.contrib.auth.models import User
+from django.shortcuts import render_to_response
+from solutioner.categories.models import Category
+
+class AddSolution(forms.Form):
+  def __init__(self, *args, **kwargs):
+    super(AddSolution, self).__init__(*args, **kwargs)
+    self.fields['problem_desc'].label = "Problem Description (optional)"
+
+  problem = forms.CharField(max_length=200, error_messages={'required': '*'})
+  problem.widget.attrs = {'class': 'problem_input'}
+  problem_desc = forms.CharField(widget=forms.Textarea, required=False)
+  problem_desc.widget.attrs = {'class': 'problem_desc_textarea'}
+  category =  forms.ModelChoiceField(queryset=Category.objects.all(),initial='1', error_messages={'required': '*'})
+  category.widget.attrs = {'class': 'uiselectmenu'}
+  solution = forms.CharField(widget=forms.Textarea, error_messages={'required': '*'})
+  solution.widget.attrs = {'class': 'solution_textarea'}
+  tags = forms.CharField(required=False, max_length = 10000, widget=forms.HiddenInput)
+  
+  def clean_title (self):
+    title = self.cleaned_data['title']
+    if len(title) > 200:
+      raise form.ValidationError("Title can't have more than 10000 characters")
+    return title
+  
+  

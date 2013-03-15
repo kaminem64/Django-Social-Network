@@ -1,0 +1,164 @@
+{% spaceless %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>{% block title %}{% endblock %}</title>
+<link rel="shortcut icon" href="{{STATIC_URL}}/icons/favicon.ico" />
+<link href="{{STATIC_URL}}/css/prettify.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="{{STATIC_URL}}/javascript/prettify.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/overcast/jquery-ui.css">-->
+<script type="text/javascript" src="{{STATIC_URL}}/javascript/jquery-ui-1.8.16.custom.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}/css/overcast/jquery-ui-1.8.16.custom.css">
+<!--<script type="text/javascript" src="{{STATIC_URL}}/javascript/jquery-1.6.2.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}/css/ui-lightness/jquery-ui-1.8.15.custom.css">-->
+<link type="text/css" href="{{STATIC_URL}}/css/themes/base/jquery.ui.selectmenu.css" rel="stylesheet" />
+<script type="text/javascript" src="{{STATIC_URL}}/javascript/ui/jquery.ui.selectmenu.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}/javascript/closure/goog/base.js"></script>
+<script type="text/javascript">
+goog.require('goog.ui.BidiInput');
+goog.require('goog.i18n.bidi');
+</script>
+
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}/css/base.css">
+
+
+<script type="text/javascript">
+var csrf_token = "{{ csrf_token }}";
+var last_sol = 1;
+var last_event = 1;
+var firstever_sol = 1;
+var firstever_event = 1;
+var user_username = "NA";
+var rgbRangeAct_view_solution = 'None'
+var graphs_solution_info_id_view_solution = '0';
+var user_accept_rate_view_solution = 0;
+var last_checked = 0;
+var sol_user_is_voted = false;
+var curr_user = "{{ request.user }}";
+var page_owner = 'None';
+</script>
+
+{% block script %}{% endblock %}
+
+<script type="text/javascript" src="{{STATIC_URL}}/javascript/solutioner.js"></script>
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-25369731-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+</head>
+<body>
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+ var js, fjs = d.getElementsByTagName(s)[0];
+ if (d.getElementById(id)) {return;}
+ js = d.createElement(s); js.id = id;
+ js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=190356564358875";
+ fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<div id="topbar_back" class="shadow_topbar"></div>
+
+<div class="pt">
+  <div id="topbar">
+
+  <div style="float: left"><ul id="menu"><a href="/">Solutioner</a></ul>
+
+</div>
+  <div style="float: left">
+    <form action="/search/" method="GET">
+      <input id="searchbar" type="text" name="q" size="20" class="searchbar"><input type="submit" value="Find The Solution" style="display:none;">
+    </form>
+</div>
+  <div style="float: right;">
+  <ul id="menu">
+    {% if user.is_authenticated %}
+      <li class="expandable"><a href="#" style="height:25px; width: 25px; padding:0; margin:0; background-image: url({{STATIC_URL}}/icons/tt.png); background-repeat: no-repeat; background-position: 1px 1px;"></a>
+        <ul class="active">
+          <li><a href="/profile/edit/">Account Settings</a></li>
+          <li><a href="/profile/edit/privacy/settings/">Privacy Settings</a></li>
+          <li><a id="logout" href="/logout/">Logout</a></li>
+        </ul>
+      </li>
+      <li><a id="notifications_count" class="button shadow_in" href='/notifications/'></a></li>
+      <li><a style="float:left;" class="button" id="profile_button" href='/profile/{{user.username}}/'><img style="margin-left:-14px; padding-right:5px; float:left;" src="/thumbs/25x25/{{ graphs_currentuser_info.profile_pic }}" border=0> {{ user.first_name|capfirst }} {{ user.last_name|capfirst }}</a></li>
+      <li><a class="button" href='/'>Home</a></li>
+
+    {% else %}
+    {% block toprightmenu %}
+    <li><a href='/login/'>Add a New Solution</a></li>
+    <li><a id="login" href='/login/'>Login</a></li>
+    <li><a id="register" href='/register/'>Register</a></li>
+    {% endblock %}
+    {% endif %}
+</ul>
+
+</div>
+
+   </div>
+
+</div>
+
+<div class='main'>
+  <div id="main_content">
+    {% block content %}
+    {% endblock %}
+  </div>
+<div style="clear: both;"></div>
+</div>
+
+  <div class="footer">
+    {% block footer %}
+    <div id="container">
+
+  <div id="followus" style="float: right;">
+  <span style="margin-right:5px;">Follow us on:</span>
+<a href="#"><img  src="{{STATIC_URL}}/icons/fb.png" border="0"></a><a href="#"><img src="{{STATIC_URL}}/icons/twitter.png" border="0"></a><a href="#"><img src="{{STATIC_URL}}/icons/in.png" border="0"></a>
+</div>
+  <div style="float: left">
+
+    <p align="center">©2011 Solutioner | <a href="/developers/">Developers</a> | <a href="/licenses/">Copyright Policy</a> | <a href="/termsofservice/">Terms of Service</a> | <a href="/privacypolicy/">Privacy Policy</a> | <a href="/aboutus/">About Solutioner</a></p>
+</div>
+    </div>
+<div id="dialog-confirm-solution" title="Delete this solution?" style="display:none;">
+	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>This solution will be permanently deleted and cannot be recovered. Are you sure?</p>
+</div>
+<div id="dialog-confirm-comment" title="Delete this comment?" style="display:none;">
+	<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>This comment will be permanently deleted and cannot be recovered. Are you sure?</p>
+</div>
+    {% endblock %}
+
+{% block script_end %}
+    <script type='text/javascript'>
+    if (goog.dom.getElement('id_problem')){
+      var problem_input = new goog.ui.BidiInput();
+      problem_input.decorate(goog.dom.getElement('id_problem'));
+      }
+    if (goog.dom.getElement('id_message')){
+      var message_input = new goog.ui.BidiInput();
+      message_input.decorate(goog.dom.getElement('id_message'));
+      }
+    /*var flatSelect1 = new goog.ui.Select(null, null,
+        goog.ui.FlatMenuButtonRenderer.getInstance());
+    flatSelect1.addItem(new goog.ui.MenuItem('Total Recall'));
+    flatSelect1.addItem(new goog.ui.MenuItem('Kindergarten Cop'));
+    flatSelect1.addItem(new goog.ui.MenuItem('Predator'));
+    flatSelect1.setSelectedIndex(0);
+    flatSelect1.render(goog.dom.getElement('id_category2'));*/
+    </script>
+{% endblock %}
+
+</body>
+</html>
+{% endspaceless %}

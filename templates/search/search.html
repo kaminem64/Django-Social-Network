@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Search Results{% endblock %}
+
+{% load truncatechars %}
+{% block content %}
+    <h2>Search</h2>
+
+    <form method="get" action=".">
+        <table>
+            {{ form.as_table }}
+            <tr>
+                <td>&nbsp;</td>
+                <td>
+                    <input type="submit" value="Search">
+                </td>
+            </tr>
+        </table>
+
+        {% if query %}
+            <h3>Results</h3>
+
+            {% for solution in page.object_list %}
+{% load truncatechars %}
+{% load sanitize %}
+<fieldset style="border: #C1C1C1 1px solid; background: #FAFAFA; margin-bottom:10px; padding: 10px" >
+<div style="float:right; margin-top:-10px;">Added: <span id="dateadded" class="rel" title="{{ solution.object.datetime_added }}">{{ solution.object.datetime_added|timesince }} ago</span></div>
+<div style="font-size:16px"><b>Problem: </b><a href="/solutions/view/{{ solution.object.id }}/ class="bidi_text"">{{ solution.object.problem|striptags|sanitize }}</a></div><br />
+<div id="problem_desc" style="background: #EAEAEA; padding: 10px 5px 10px 5px; margin-bottom: 2px;"><b>Problem Description:</b><p id="problem_desc" class="bidi_text">{{ solution.object.problem_desc|truncatechars:300|striptags|sanitize }}</p></div>
+<div id="solution" style="background: #EAEAEA; padding: 10px 5px 10px 5px; margin-bottom: 2px;"><b>Solution:</b><p id="solution" class="bidi_text">{{ solution.object.solution|truncatechars:300|striptags|sanitize }}</p></div>
+<div class="tag_nob">Category:<a class="tag bidi_text" href="/categories/{{solution.object.category|urlencode}}">{{ solution.object.category }}</a></div>
+<div style="float:right">
+<b>Source: </b><a href="{{ solution.object.source.url }}">{{ solution.object.source.source }}</a><br />
+<b>Viewed:</b> {{ solution.object.viewed }}<br />
+<!--<span id="sol_accept_rate_t" class="accept_rate" title="{{ solution.object.sol_accept_rate }}">Accept rate: <span id="sol_accept_rate">{{ solution.object.sol_accept_rate }}</span>%</span>-->
+</div>
+<div class="tag_nob">{% if solution.object.tags.all %}Tags: {% endif %}{% for tag in solution.object.tags.all %}<a class="tag bidi_text" href="/tags/{{tag|urlencode}}/">{{ tag|safe }}</a>&nbsp; {% endfor %}</div>
+</fieldset>
+
+
+            {% empty %}
+                <p>No results found.</p>
+            {% endfor %}
+
+            {% if page.has_previous or page.has_next %}
+                <div>
+                    {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
+                    |
+                    {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            {# Show some example queries to run, maybe query syntax, something else? #}
+        {% endif %}
+    </form>
+{% endblock %}

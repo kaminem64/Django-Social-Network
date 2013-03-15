@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+
+{% block script %}
+<script src="{{STATIC_URL}}/javascript/tag-it.js" type="text/javascript" charset="utf-8"></script>
+<link href="{{STATIC_URL}}/css/jquery.tagit.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="{{STATIC_URL}}/ckeditor/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}/ckeditor/ckeditor/adapters/jquery.js"></script>
+<link type="text/css" href="{{STATIC_URL}}/css/themes/base/jquery.ui.selectmenu.css" rel="stylesheet" />
+<script type="text/javascript" src="{{STATIC_URL}}/javascript/ui/jquery.ui.selectmenu.js"></script>
+
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+$("#id_problem_desc").ckeditor({'toolbar': 'EditSolution'});
+$("#id_solution").ckeditor({'toolbar': 'EditSolution'});
+
+			$('select.uiselectmenu').selectmenu({
+				icons: [
+					{find: ''}
+				],
+				bgImage: function() {
+					return 'url("{{STATIC_URL}}/images/search-icon.png")';
+				}
+			});
+
+$("#mytags").tagit({
+  singleField: true,
+  singleFieldNode: $('#id_tags'),
+  tagSource: function(search, showChoices) {
+    $.ajax({
+      url: "/ajax/jauto/",
+      data: {search: search.term},
+      success: function(choices) {
+        showChoices(choices);
+      }
+    });
+  }
+})  .css({
+       'outline' : 'none',
+        'cursor' : 'text'
+  });
+  
+});
+</script>
+{% endblock %}
+
+
+{% block script_end %}
+    <script type='text/javascript'>
+      var problem_input = new goog.ui.BidiInput();
+      problem_input.decorate(goog.dom.getElement('id_problem'));
+    </script>
+{% endblock %}
+
+{% block content %}
+{% if forked %}
+<div style="color: green">Successfully forked!</div>
+<p>You can edit this solution or leave it unchanged.</p>
+{% endif %}
+<form action="" method="post" style="font-color:#000; font-weight: bold">
+{% csrf_token %}
+<fieldset style="border: 1px #EAEAEA solid; background-color: #EAEAEA; padding:4px 6px 4px 4px;">
+<legend>Edit Solution - ID #{{solution_id}}</legend>
+<p>
+{% if form.errors %}<p id="error">Please complete your Solution</p>{% endif %}</p>
+
+<div><span id="error">{% for error in form.problem.errors %}{{ error }}{% endfor %}</span>{% if not form.problem.errors %}*{% endif %} {{ form.problem.label }}: </div><div>{{ form.problem }}</div>
+
+<div><span id="error">{% for error in form.problem_desc.errors %}{{ error }}{% endfor %}</span>{% if not form.problem_desc.errors %}*{% endif %} {{ form.problem_desc.label }}: </div><div>{{ form.problem_desc }}</div>
+
+<div><span id="error">{% for error in form.solution.errors %}{{ error }}{% endfor %}</span>{% if not form.solution.errors %}*{% endif %} {{ form.solution.label }}: </div><div>{{ form.solution }}</div>
+
+<div><span id="error">{% for error in form.tags.errors %}{{ error }}{% endfor %}</span>{{ form.tags.label }}: </div><div>{{ form.tags }}</div>
+<ul id="mytags" style="padding: 0px 4px 0px 4px; width: 98%;"></ul>
+
+<div><span id="error">{% for error in form.category.errors %}{{ error }}{% endfor %}</span>{% if not form.category.errors %}*{% endif %}{{ form.category.label }}: </div>
+<input type="submit" value="Save Changes" style="float: right;">
+<div>{{ form.category }}</div>
+
+<input type="hidden" name="redirectTo" value="{{ redirectTo|escape }}" />
+</p>
+</fieldset>
+</form>
+{% endblock %}
